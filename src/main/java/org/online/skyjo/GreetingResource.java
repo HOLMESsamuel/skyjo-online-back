@@ -1,4 +1,4 @@
-package org.samuel.holmes;
+package org.online.skyjo;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

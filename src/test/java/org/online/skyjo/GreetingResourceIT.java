@@ -1,4 +1,4 @@
-package org.samuel.holmes;
+package org.online.skyjo;
 
 import io.quarkus.test.junit.QuarkusIntegrationTest;
 
