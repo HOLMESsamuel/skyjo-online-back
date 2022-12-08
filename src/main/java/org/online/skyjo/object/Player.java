@@ -1,4 +1,4 @@
-package org.online.skyjo;
+package org.online.skyjo.object;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class Player {
 	private int score;
+	private String name;
 	private Board board;
 
 }

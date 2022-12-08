@@ -1,6 +1,7 @@
 package org.online.skyjo;
 
 import org.junit.jupiter.api.Test;
+import org.online.skyjo.object.Deck;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.online.skyjo.Constants.DECK_SIZE;
@@ -11,7 +12,7 @@ class DeckTest {
 	void deckConstructorTest() {
 		Deck deck = new Deck();
 
-		assertEquals(DECK_SIZE, deck.getCards().length);
+		assertEquals(DECK_SIZE, deck.getCards().size());
 	}
 
 }

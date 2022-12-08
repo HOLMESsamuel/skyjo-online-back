@@ -1,4 +1,4 @@
-package org.online.skyjo;
+package org.online.skyjo.object;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -12,4 +12,5 @@ public class Game {
 	private ArrayList<Player> players;
 	private String state;
 	private Deck deck;
+	private Card lastCard;
 }
