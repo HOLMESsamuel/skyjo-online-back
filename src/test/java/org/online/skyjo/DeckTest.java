@@ -11,8 +11,10 @@ class DeckTest {
 	@Test
 	void deckConstructorTest() {
 		Deck deck = new Deck();
-
-		assertEquals(DECK_SIZE, deck.getCards().size());
+		assertAll(
+				() -> assertEquals(DECK_SIZE, deck.getCards().size()),
+				() -> assertEquals(0, deck.getRemovedCards().size())
+		);
 	}
 
 }

@@ -50,6 +50,7 @@ public class Board {
 	/**
 	 * Make a row cores 0 if all cards of the row have the same value, just like in the game.
 	 */
+	//TODO : move eliminated cards to the deck
 	public void eliminateRow() {
 		for(int i = 0; i<grid[0].length; i++) {
 			boolean allValueEqualsInRow = true;
