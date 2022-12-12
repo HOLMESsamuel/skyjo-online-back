@@ -10,5 +10,6 @@ public class Player {
 	private String name;
 	private Board board;
 	private Card cardInHand;
+	private String state;
 
 }

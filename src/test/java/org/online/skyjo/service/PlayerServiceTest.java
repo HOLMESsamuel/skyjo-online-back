@@ -5,6 +5,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.online.skyjo.object.Board;
 import org.online.skyjo.object.Card;
 import org.online.skyjo.object.Deck;
 import org.online.skyjo.object.Player;
@@ -62,6 +63,30 @@ class PlayerServiceTest {
         playerService.getLastCard(player, deck);
 
         assertEquals(card, player.getCardInHand());
+    }
+
+    @Test
+    void replaceCard() {
+        //prepare a deck and a player with a two card grid
+        Deck deck = new Deck();
+        Player player = new Player();
+        Card card1 = new Card(1);
+        Card card2 = new Card(2);
+        Card[][] grid = {{card2}, {card2}};
+        Board board = new Board();
+        board.setGrid(grid);
+        player.setBoard(board);
+        player.setCardInHand(card1);
+
+        playerService.replaceCard(player, deck, 0, 0);
+
+        assertAll(
+                () -> assertEquals(card1, player.getBoard().getGrid()[0][0]),
+                () -> assertEquals(card2, player.getBoard().getGrid()[1][0]),
+                () -> assertEquals(card2, deck.getRemovedCards().get(0)),
+                () -> assertNull(player.getCardInHand())
+        );
+
     }
 
 }
