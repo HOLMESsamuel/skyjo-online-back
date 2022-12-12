@@ -1,6 +1,7 @@
 package org.online.skyjo;
 
 import org.junit.jupiter.api.Test;
+import org.online.skyjo.object.Card;
 import org.online.skyjo.object.Deck;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,6 +16,23 @@ class DeckTest {
 				() -> assertEquals(DECK_SIZE, deck.getCards().size()),
 				() -> assertEquals(0, deck.getRemovedCards().size())
 		);
+	}
+
+	@Test
+	void getLastCard() {
+		Deck deck = new Deck();
+		Card card = new Card(10);
+		deck.getRemovedCards().add(card);
+
+		assertEquals(card, deck.getLastCard());
+
+	}
+
+	@Test
+	void getLastCard_empty() {
+		Deck deck = new Deck();
+
+		assertThrows(IndexOutOfBoundsException.class, deck::getLastCard);
 	}
 
 }
