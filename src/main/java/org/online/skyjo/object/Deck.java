@@ -27,7 +27,9 @@ public class Deck {
 	}
 
 	public Card getLastCard() {
-		return removedCards.get(removedCards.size() - 1);
+		Card lastRemovedCard = removedCards.get(removedCards.size() - 1);
+		removedCards.remove(lastRemovedCard);
+		return lastRemovedCard;
 	}
 
 }

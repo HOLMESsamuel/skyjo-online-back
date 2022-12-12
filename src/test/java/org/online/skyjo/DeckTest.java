@@ -24,7 +24,11 @@ class DeckTest {
 		Card card = new Card(10);
 		deck.getRemovedCards().add(card);
 
-		assertEquals(card, deck.getLastCard());
+		assertAll(
+				() -> assertEquals(card, deck.getLastCard()),
+				() -> assertTrue(deck.getRemovedCards().isEmpty())
+		);
+		
 
 	}
 

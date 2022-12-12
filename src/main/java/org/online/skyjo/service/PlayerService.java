@@ -20,4 +20,13 @@ public class PlayerService {
         deck.getRemovedCards().add(player.getCardInHand());
         player.setCardInHand(null);
     }
+
+    /**
+     * Make the player takes the last removed card.
+     * @param player player that gets the card
+     * @param deck deck from which the player takes the card
+     */
+    public void getLastCard(Player player, Deck deck) {
+        player.setCardInHand(deck.getLastCard());
+    }
 }

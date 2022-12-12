@@ -25,6 +25,9 @@ class PlayerServiceTest {
     @Mock
     Card card;
 
+    @Mock
+    Deck deck;
+
     @Test
     void pickCard() {
         Deck deck = new Deck();
@@ -49,6 +52,16 @@ class PlayerServiceTest {
                 () -> assertNull(player.getCardInHand()),
                 () -> assertEquals(card, deck.getRemovedCards().get(0))
         );
+    }
+
+    @Test
+    void getLastCard() {
+        Player player = new Player();
+        when(deck.getLastCard()).thenReturn(card);
+
+        playerService.getLastCard(player, deck);
+
+        assertEquals(card, player.getCardInHand());
     }
 
 }
