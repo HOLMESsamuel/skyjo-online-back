@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 public class Game {
 	private String id;
-	private ArrayList<Player> players;
+	private ArrayList<Player> players = new ArrayList<>();
 	private String state;
 	private Deck deck;
 
@@ -18,7 +18,7 @@ public class Game {
 		players.add(player);
 	}
 
-	public void addPLayers(List<Player> players) {
+	public void addPlayers(List<Player> players) {
 		for(Player player : players) {
 			addPlayer(player);
 		}
