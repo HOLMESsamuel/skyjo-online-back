@@ -29,13 +29,13 @@ public class Board {
 	 * @return the board score
 	 */
 	public int computeScore() {
-		int score = 0;
+		int boardScore = 0;
 		for(Card[] cardLine : this.grid) {
 			for (Card card : cardLine) {
-				score += card.getNumber();
+				boardScore += card.getNumber();
 			}
 		}
-		return score;
+		return boardScore;
 	}
 
 	public void revealCard(int row, int line) {
@@ -45,24 +45,5 @@ public class Board {
 	public void replaceCard(int row, int line, Card card) {
 		card.setVisible(true);
 		grid[row][line] = card;
-	}
-
-	/**
-	 * Make a row cores 0 if all cards of the row have the same value, just like in the game.
-	 */
-	//TODO : move eliminated cards to the deck
-	public void eliminateRow() {
-		for(int i = 0; i<grid[0].length; i++) {
-			boolean allValueEqualsInRow = true;
-			int rowValue = grid[0][i].getNumber();
-			for(Card[] cards : grid) {
-				allValueEqualsInRow = cards[i].getNumber() == rowValue;
-			}
-			if(allValueEqualsInRow && rowValue !=0) {
-				for(Card[] cards : grid) {
-					cards[i].setNumber(0);
-				}
-			}
-		}
 	}
 }
