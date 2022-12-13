@@ -45,6 +45,6 @@ jobs:
       with:
         image: samuelholmes/skyjo-online
         tags: latest
-        registry: registry-url.io
+        registry: docker.io
         dockerfile: src/main/docker/Dockerfile.native
     
