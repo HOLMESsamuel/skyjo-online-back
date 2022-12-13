@@ -41,5 +41,5 @@ jobs:
     - name: Build the Docker image
       run: docker build . --file src/main/docker/Dockerfile.native --tag last-github
     - name: Push the Docker image
-      run: docker push samuelholmes/skyjo-online
+      run: docker push samuelholmes/skyjo-online:last-github:latest
     
