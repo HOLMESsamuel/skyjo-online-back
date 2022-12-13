@@ -39,7 +39,7 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
     - name: Build the Docker image
-      run: docker build . --file src/main/docker/Dockerfile.native --tag last-github
+      run: docker build . --file src/main/docker/Dockerfile.native --tag skyjo-online
     - name: Push the Docker image
-      run: docker push samuelholmes/skyjo-online:last-github:latest
+      run: docker push samuelholmes/skyjo-online:latest
     
