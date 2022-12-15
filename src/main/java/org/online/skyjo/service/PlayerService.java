@@ -17,6 +17,17 @@ public class PlayerService {
     @Inject
     DeckService deckService;
 
+    @Inject
+    BoardService boardService;
+
+    public Player initiatePlayer(String name, Deck deck) {
+        Player player = new Player(name);
+        player.setScore(0);
+        player.setBoard(boardService.initiateBoard(deck));
+
+        return player;
+    }
+
     public void pickCard(Player player, Deck deck) {
         player.setCardInHand(deckService.pickRandomCard(deck));
     }
@@ -77,6 +88,15 @@ public class PlayerService {
             player.getBoard().revealCard(row, line);
         } else if (Objects.equals(choice, REPLACE_CARD)) {
             replaceCard(player, deck, row, line);
+        }
+    }
+
+    /** Changes the player's state to finish if its board is visible.
+     * @param player to player to set state
+     */
+    public void stateFinished(Player player) {
+        if(player.getBoard().isVisible()) {
+            player.setState(FINISH);
         }
     }
 }

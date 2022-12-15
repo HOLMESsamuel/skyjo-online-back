@@ -3,17 +3,26 @@ package org.online.skyjo.service;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.online.skyjo.object.Board;
 import org.online.skyjo.object.Card;
 import org.online.skyjo.object.Deck;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.online.skyjo.Constants.LINE_NUMBER;
+import static org.online.skyjo.Constants.ROW_NUMBER;
 
 @ExtendWith(MockitoExtension.class)
 class BoardServiceTest {
+
 	@InjectMocks
 	BoardService boardService;
+
+	@Mock
+	DeckService deckService;
 
 	@Test
 	void eliminateRow() {
@@ -49,6 +58,23 @@ class BoardServiceTest {
 				() -> assertEquals(0, board.getGrid()[2][0].getNumber()),
 				() -> assertEquals(2, board.getGrid()[2][3].getNumber()),
 				() -> assertEquals(1, deck.getRemovedCards().get(0).getNumber())
+		);
+	}
+
+	@Test
+	void initiateBoard() {
+		Deck deck = new Deck();
+		Card card = new Card(12);
+		when(deckService.pickRandomCard(any())).thenReturn(card);
+
+		Board board = boardService.initiateBoard(deck);
+
+		assertAll(
+				() -> assertEquals(0, board.getScore()),
+				() -> assertNotNull(board.getGrid()),
+				() -> assertEquals(LINE_NUMBER, board.getGrid().length),
+				() -> assertEquals(ROW_NUMBER, board.getGrid()[0].length),
+				() -> assertEquals(card, board.getGrid()[0][0])
 		);
 	}
 }

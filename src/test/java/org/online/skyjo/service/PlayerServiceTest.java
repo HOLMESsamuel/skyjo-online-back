@@ -2,6 +2,8 @@ package org.online.skyjo.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -12,13 +14,18 @@ import org.online.skyjo.object.Player;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.online.skyjo.Constants.FINISH;
 
 @ExtendWith(MockitoExtension.class)
 class PlayerServiceTest {
 
     @InjectMocks
     PlayerService playerService;
+
+    @Mock
+    BoardService boardService;
 
     @Mock
     DeckService deckService;
@@ -28,6 +35,9 @@ class PlayerServiceTest {
 
     @Mock
     Deck deck;
+
+    @Mock
+    Board board;
 
     @Test
     void pickCard() {
@@ -87,6 +97,39 @@ class PlayerServiceTest {
                 () -> assertNull(player.getCardInHand())
         );
 
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void stateFinished(boolean boardVisible) {
+        when(board.isVisible()).thenReturn(boardVisible);
+        Player player = new Player();
+        player.setBoard(board);
+
+        playerService.stateFinished(player);
+
+        if(boardVisible) {
+            assertEquals(FINISH, player.getState());
+        } else {
+            assertNotEquals(FINISH, player.getState());
+        }
+    }
+
+    @Test
+    void initiatePlayer() {
+        Deck deck = new Deck();
+        String name = "name";
+        Board board = new Board();
+        when(boardService.initiateBoard(any())).thenReturn(board);
+
+        Player player = playerService.initiatePlayer(name, deck);
+
+        assertAll(
+                () -> assertEquals(name, player.getName()),
+                () -> verify(boardService).initiateBoard(deck),
+                () -> assertEquals(board, player.getBoard()),
+                () -> assertEquals(0, player.getScore())
+        );
     }
 
 }

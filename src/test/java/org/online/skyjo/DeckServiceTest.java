@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
@@ -19,12 +20,16 @@ import java.util.List;
 import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.online.skyjo.Constants.DECK_SIZE;
 
 @ExtendWith(MockitoExtension.class)
 class DeckServiceTest {
 
+	@Spy
 	@InjectMocks
 	DeckService deckService;
 
@@ -88,6 +93,19 @@ class DeckServiceTest {
 		deckService.shuffleDeck(deck);
 
 		assertTrue(true);
+	}
+
+	@Test
+	void initiateDeck() {
+		doNothing().when(deckService).shuffleDeck(any());
+
+		Deck deck = deckService.initiateDeck();
+
+		assertAll(
+				() -> assertNotNull(deck.getRemovedCards()),
+				() -> assertEquals(149, deck.getCards().size()),
+				() -> assertTrue(deck.getRemovedCards().get(0).isVisible())
+		);
 	}
 
 }

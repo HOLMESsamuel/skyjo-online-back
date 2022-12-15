@@ -1,7 +1,7 @@
 package org.online.skyjo.service;
 
+import org.online.skyjo.object.Deck;
 import org.online.skyjo.object.Game;
-import org.online.skyjo.object.Player;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -17,12 +17,12 @@ public class GameService {
 	@Inject
 	DeckService deckService;
 
-	@Inject
-	BoardService boardService;
-
-	public Game initiateGame(Player player) {
+	public Game initiateGame(String playerName) {
 		Game game = new Game();
-		game.setPlayers(new ArrayList<>(List.of(player)));
+		Deck deck = deckService.initiateDeck();
+
+		game.setPlayers(new ArrayList<>(List.of(playerService.initiatePlayer(playerName, deck))));
+		game.setDeck(deck);
 
 		return game;
 	}

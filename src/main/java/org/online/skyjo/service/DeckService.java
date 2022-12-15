@@ -42,4 +42,18 @@ public class DeckService {
 			card.setVisible(false);
 		}
 	}
+
+	/**
+	 * Creates a deck withh aall cards, shuffles it, pick a card and put it visible.
+	 * @return the initiated deck ready to play
+	 */
+	public Deck initiateDeck() {
+		Deck deck = new Deck();
+		shuffleDeck(deck);
+		Card card = pickRandomCard(deck);
+		card.setVisible(true);
+		deck.getRemovedCards().add(card);
+
+		return deck;
+	}
 }

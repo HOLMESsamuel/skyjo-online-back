@@ -12,6 +12,9 @@ public class Constants {
 	public static final String DROP_AND_REVEAL = "drop";
 	public static final String REPLACE_CARD = "replace";
 
+	public static final int ROW_NUMBER = 4;
+	public static final int LINE_NUMBER = 3;
+
 	private Constants() {
 
 	}
