@@ -5,11 +5,12 @@ import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Getter
 @Setter
 public class Game {
-	private String id;
+	private UUID id;
 	private ArrayList<Player> players = new ArrayList<>();
 	private String state;
 	private Deck deck;

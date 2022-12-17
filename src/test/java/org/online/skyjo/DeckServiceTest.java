@@ -41,8 +41,8 @@ class DeckServiceTest {
 
 	@BeforeEach
 	void init() {
-		Mockito.when(randomProvider.getRandom()).thenReturn(random);
-		Mockito.when(random.nextInt(anyInt())).thenReturn(0);
+		Mockito.lenient().when(randomProvider.getRandom()).thenReturn(random);
+		Mockito.lenient().when(random.nextInt(anyInt())).thenReturn(0);
 	}
 
 	@Test
@@ -93,6 +93,25 @@ class DeckServiceTest {
 		deckService.shuffleDeck(deck);
 
 		assertTrue(true);
+	}
+
+	@Test
+	void getLastCard() {
+		Deck deck = new Deck();
+		Card card = new Card(10);
+		deck.getRemovedCards().add(card);
+
+		assertAll(
+				() -> assertEquals(card, deckService.getLastCard(deck)),
+				() -> assertTrue(deck.getRemovedCards().isEmpty())
+		);
+	}
+
+	@Test
+	void getLastCard_empty() {
+		Deck deck = new Deck();
+
+		assertThrows(IndexOutOfBoundsException.class, () -> deckService.getLastCard(deck));
 	}
 
 	@Test

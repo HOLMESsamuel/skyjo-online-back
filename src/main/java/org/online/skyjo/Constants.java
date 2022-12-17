@@ -1,5 +1,7 @@
 package org.online.skyjo;
 
+import javax.ws.rs.core.Response;
+
 public class Constants {
 	public static final int DECK_SIZE = 150;
 
@@ -14,6 +16,9 @@ public class Constants {
 
 	public static final int ROW_NUMBER = 4;
 	public static final int LINE_NUMBER = 3;
+
+	public static final Response GAME_NOT_EXISTS = Response.status(404, "This game does not exists").build();
+	public static final Response PLAYER_ALREADY_EXISTS = Response.status(409, "A player already exists with this name.").build();
 
 	private Constants() {
 

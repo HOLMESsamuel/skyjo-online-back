@@ -68,7 +68,7 @@ class PlayerServiceTest {
     @Test
     void getLastCard() {
         Player player = new Player();
-        when(deck.getLastCard()).thenReturn(card);
+        when(deckService.getLastCard(any())).thenReturn(card);
 
         playerService.getLastCard(player, deck);
 

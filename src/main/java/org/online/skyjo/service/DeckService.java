@@ -43,6 +43,13 @@ public class DeckService {
 		}
 	}
 
+	public Card getLastCard(Deck deck) {
+		ArrayList<Card> removedCards = deck.getRemovedCards();
+		Card lastRemovedCard = removedCards.get(removedCards.size() - 1);
+		removedCards.remove(lastRemovedCard);
+		return lastRemovedCard;
+	}
+
 	/**
 	 * Creates a deck withh aall cards, shuffles it, pick a card and put it visible.
 	 * @return the initiated deck ready to play

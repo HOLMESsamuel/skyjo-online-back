@@ -18,25 +18,4 @@ class DeckTest {
 		);
 	}
 
-	@Test
-	void getLastCard() {
-		Deck deck = new Deck();
-		Card card = new Card(10);
-		deck.getRemovedCards().add(card);
-
-		assertAll(
-				() -> assertEquals(card, deck.getLastCard()),
-				() -> assertTrue(deck.getRemovedCards().isEmpty())
-		);
-		
-
-	}
-
-	@Test
-	void getLastCard_empty() {
-		Deck deck = new Deck();
-
-		assertThrows(IndexOutOfBoundsException.class, deck::getLastCard);
-	}
-
 }

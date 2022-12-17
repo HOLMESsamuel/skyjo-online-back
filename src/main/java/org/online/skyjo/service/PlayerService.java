@@ -57,7 +57,7 @@ public class PlayerService {
      * @param deck deck from which the player takes the card
      */
     public void getLastCard(Player player, Deck deck) {
-        player.setCardInHand(deck.getLastCard());
+        player.setCardInHand(deckService.getLastCard(deck));
     }
 
     /**
