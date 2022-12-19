@@ -32,7 +32,9 @@ public class Board {
 		int boardScore = 0;
 		for(Card[] cardLine : this.grid) {
 			for (Card card : cardLine) {
-				boardScore += card.getNumber();
+				if(card.isVisible()) {
+					boardScore += card.getNumber();
+				}
 			}
 		}
 		return boardScore;
