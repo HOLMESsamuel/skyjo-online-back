@@ -74,7 +74,7 @@ public class GameService {
 	 * @param players list of players
 	 * @return the player that will play first
 	 */
-	protected Player findFirstPlayer(List<Player> players) {
+	protected Player findFirstPlayer(ArrayList<Player> players) {
 		Player firstPlayer = players.get(0);
 		int max = firstPlayer.getBoard().computeScore();
 
