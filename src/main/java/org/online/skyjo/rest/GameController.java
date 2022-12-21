@@ -1,6 +1,8 @@
 package org.online.skyjo.rest;
 
+import org.online.skyjo.object.Coordinates;
 import org.online.skyjo.object.Game;
+import org.online.skyjo.object.Player;
 import org.online.skyjo.service.GameService;
 import org.online.skyjo.service.PlayerService;
 
@@ -14,8 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.online.skyjo.Constants.GAME_NOT_EXISTS;
-import static org.online.skyjo.Constants.PLAYER_ALREADY_EXISTS;
+import static org.online.skyjo.Constants.*;
 
 @Path("/games")
 @Produces(MediaType.APPLICATION_JSON)
@@ -41,6 +42,22 @@ public class GameController {
         return GAME_NOT_EXISTS;
     }
 
+    @GET
+    @Path("/{id}/ready")
+    public Response startGame(@PathParam("id") UUID id) {
+        Optional<Game> gameOptional = games.stream().filter(g -> g.getId().equals(id)).findFirst();
+        if(gameOptional.isPresent()) {
+            Game game = gameOptional.get();
+            gameService.startGame(game);
+            if(RUNNING.equals(game.getState())) {
+                return Response.ok(game).build();
+            }
+            return GAME_NOT_READY;
+        }
+        return GAME_NOT_EXISTS;
+
+    }
+
     @POST
     public Game createGame(String playerName) {
         Game game = gameService.initiateGame(playerName);
@@ -59,6 +76,25 @@ public class GameController {
             }
             game.addPlayer(playerService.initiatePlayer(playerName, game.getDeck()));
             return Response.ok(game).build();
+        }
+        return GAME_NOT_EXISTS;
+    }
+
+    @PUT
+    @Path("/{id}/{name}/ready")
+    public Response playerReady(@PathParam("id") UUID id, @PathParam("name") String playerName, Coordinates firstCardsCoordinates) {
+        Optional<Game> gameOptional = games.stream().filter(g -> g.getId().equals(id)).findFirst();
+        if(gameOptional.isPresent()) {
+            Game game = gameOptional.get();
+            Optional<Player> optionalPlayer = game.getPlayers().stream().filter(p -> p.getName().equals(playerName)).findFirst();
+            if(optionalPlayer.isPresent()) {
+                Player player = optionalPlayer.get();
+                player.getBoard().revealCard(firstCardsCoordinates.getRowCard1(), firstCardsCoordinates.getLineCard1());
+                player.getBoard().revealCard(firstCardsCoordinates.getRowCard2(), firstCardsCoordinates.getLineCard2());
+                player.setState(READY);
+                return Response.ok(game).build();
+            }
+            return PLAYER_NOT_EXISTS;
         }
         return GAME_NOT_EXISTS;
     }
