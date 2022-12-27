@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Player {
+public class Player implements Comparable<Player>{
 	private int score;
 	private String name;
 	private Board board;
@@ -18,4 +18,8 @@ public class Player {
 		this.name = name;
 	}
 
+	@Override
+	public int compareTo(Player player) {
+		return Integer.compare(score, player.getScore());
+	}
 }

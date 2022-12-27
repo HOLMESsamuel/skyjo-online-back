@@ -1,8 +1,10 @@
 package org.online.skyjo.rest;
 
+import org.online.skyjo.object.Choice;
 import org.online.skyjo.object.Coordinates;
 import org.online.skyjo.object.Game;
 import org.online.skyjo.object.Player;
+import org.online.skyjo.service.DeckService;
 import org.online.skyjo.service.GameService;
 import org.online.skyjo.service.PlayerService;
 
@@ -11,10 +13,7 @@ import javax.transaction.Transactional;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.online.skyjo.Constants.*;
 
@@ -31,6 +30,9 @@ public class GameController {
 
     @Inject
     PlayerService playerService;
+
+    @Inject
+    DeckService deckService;
 
     @GET
     @Path("/{id}")
@@ -95,6 +97,57 @@ public class GameController {
                 return Response.ok(game).build();
             }
             return PLAYER_NOT_EXISTS;
+        }
+        return GAME_NOT_EXISTS;
+    }
+
+    @PUT
+    @Path("/{id}/{name}/hand")
+    public Response playerChooseCard(@PathParam("id") UUID id, @PathParam("name") String playerName, Choice choice) {
+        Optional<Game> gameOptional = games.stream().filter(g -> g.getId().equals(id)).findFirst();
+        if(gameOptional.isPresent()) {
+            Game game = gameOptional.get();
+            Optional<Player> optionalPlayer = game.getPlayers().stream().filter(p -> p.getName().equals(playerName)).findFirst();
+            if(optionalPlayer.isPresent()) {
+                Player player = optionalPlayer.get();
+                playerService.getCard(player, choice.getChoiceString(), game.getDeck());
+                return Response.ok(game).build();
+            }
+            return PLAYER_NOT_EXISTS;
+        }
+        return GAME_NOT_EXISTS;
+    }
+
+    @PUT
+    @Path("/{id}/{name}/board")
+    public Response playerPlayCard(@PathParam("id") UUID id, @PathParam("name") String playerName, Choice choice) {
+        Optional<Game> gameOptional = games.stream().filter(g -> g.getId().equals(id)).findFirst();
+        if(gameOptional.isPresent()) {
+            Game game = gameOptional.get();
+            Optional<Player> optionalPlayer = game.getPlayers().stream().filter(p -> p.getName().equals(playerName)).findFirst();
+            if(optionalPlayer.isPresent()) {
+                Player player = optionalPlayer.get();
+                playerService.playCard(player, choice.getChoiceString(), game.getDeck(), choice.getRow(), choice.getLine());
+                return Response.ok(game).build();
+            }
+            return PLAYER_NOT_EXISTS;
+        }
+        return GAME_NOT_EXISTS;
+    }
+
+    @GET
+    @Path("/{id}/final-score")
+    public Response getFinalScore(@PathParam("id") UUID id) {
+        Optional<Game> gameOptional = games.stream().filter(g -> g.getId().equals(id)).findFirst();
+        if(gameOptional.isPresent()) {
+            Game game = gameOptional.get();
+            if(FINISH.equals(game.getState())) {
+                for(Player player : game.getPlayers()) {
+                    player.setScore(player.getBoard().computeScore());
+                }
+                Collections.sort(game.getPlayers());
+                return Response.ok(game).build();
+            }
         }
         return GAME_NOT_EXISTS;
     }
