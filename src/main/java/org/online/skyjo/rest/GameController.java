@@ -4,7 +4,6 @@ import org.online.skyjo.object.Choice;
 import org.online.skyjo.object.Coordinates;
 import org.online.skyjo.object.Game;
 import org.online.skyjo.object.Player;
-import org.online.skyjo.service.DeckService;
 import org.online.skyjo.service.GameService;
 import org.online.skyjo.service.PlayerService;
 
@@ -31,13 +30,10 @@ public class GameController {
     @Inject
     PlayerService playerService;
 
-    @Inject
-    DeckService deckService;
-
     @GET
     @Path("/{id}")
-    public Response getGame(@PathParam("id") UUID id) {
-        Optional<Game> gameOptional = games.stream().filter(g -> g.getId().equals(id)).findFirst();
+    public Response getGame(@PathParam("id") String id) {
+        Optional<Game> gameOptional = findGame(id);
         if(gameOptional.isPresent()) {
             return Response.ok(gameOptional.get()).build();
         }
@@ -46,8 +42,8 @@ public class GameController {
 
     @GET
     @Path("/{id}/ready")
-    public Response startGame(@PathParam("id") UUID id) {
-        Optional<Game> gameOptional = games.stream().filter(g -> g.getId().equals(id)).findFirst();
+    public Response startGame(@PathParam("id") String id) {
+        Optional<Game> gameOptional = findGame(id);
         if(gameOptional.isPresent()) {
             Game game = gameOptional.get();
             gameService.startGame(game);
@@ -69,8 +65,8 @@ public class GameController {
 
     @PUT
     @Path("join/{id}")
-    public Response joinGame(@PathParam("id") UUID id, String playerName) {
-        Optional<Game> gameOptional = games.stream().filter(g -> g.getId().equals(id)).findFirst();
+    public Response joinGame(@PathParam("id") String id, String playerName) {
+        Optional<Game> gameOptional = findGame(id);
         if(gameOptional.isPresent()) {
             Game game = gameOptional.get();
             if (game.getPlayers().stream().anyMatch(p -> playerName.equals(p.getName()))) {
@@ -84,8 +80,8 @@ public class GameController {
 
     @PUT
     @Path("/{id}/{name}/ready")
-    public Response playerReady(@PathParam("id") UUID id, @PathParam("name") String playerName, Coordinates firstCardsCoordinates) {
-        Optional<Game> gameOptional = games.stream().filter(g -> g.getId().equals(id)).findFirst();
+    public Response playerReady(@PathParam("id") String id, @PathParam("name") String playerName, Coordinates firstCardsCoordinates) {
+        Optional<Game> gameOptional = findGame(id);
         if(gameOptional.isPresent()) {
             Game game = gameOptional.get();
             Optional<Player> optionalPlayer = game.getPlayers().stream().filter(p -> p.getName().equals(playerName)).findFirst();
@@ -103,8 +99,8 @@ public class GameController {
 
     @PUT
     @Path("/{id}/{name}/hand")
-    public Response playerChooseCard(@PathParam("id") UUID id, @PathParam("name") String playerName, Choice choice) {
-        Optional<Game> gameOptional = games.stream().filter(g -> g.getId().equals(id)).findFirst();
+    public Response playerChooseCard(@PathParam("id") String id, @PathParam("name") String playerName, Choice choice) {
+        Optional<Game> gameOptional = findGame(id);
         if(gameOptional.isPresent()) {
             Game game = gameOptional.get();
             Optional<Player> optionalPlayer = game.getPlayers().stream().filter(p -> p.getName().equals(playerName)).findFirst();
@@ -120,8 +116,8 @@ public class GameController {
 
     @PUT
     @Path("/{id}/{name}/board")
-    public Response playerPlayCard(@PathParam("id") UUID id, @PathParam("name") String playerName, Choice choice) {
-        Optional<Game> gameOptional = games.stream().filter(g -> g.getId().equals(id)).findFirst();
+    public Response playerPlayCard(@PathParam("id") String id, @PathParam("name") String playerName, Choice choice) {
+        Optional<Game> gameOptional = findGame(id);
         if(gameOptional.isPresent()) {
             Game game = gameOptional.get();
             Optional<Player> optionalPlayer = game.getPlayers().stream().filter(p -> p.getName().equals(playerName)).findFirst();
@@ -137,8 +133,8 @@ public class GameController {
 
     @GET
     @Path("/{id}/final-score")
-    public Response getFinalScore(@PathParam("id") UUID id) {
-        Optional<Game> gameOptional = games.stream().filter(g -> g.getId().equals(id)).findFirst();
+    public Response getFinalScore(@PathParam("id") String id) {
+        Optional<Game> gameOptional = findGame(id);
         if(gameOptional.isPresent()) {
             Game game = gameOptional.get();
             if(FINISH.equals(game.getState())) {
@@ -150,5 +146,14 @@ public class GameController {
             }
         }
         return GAME_NOT_EXISTS;
+    }
+
+    /**
+     * Tries to find a game within the list corresponding to the given id.
+     * @param id id of the game we want to find
+     * @return optional empty if there is no game, or the game if it exists
+     */
+    protected Optional<Game> findGame(String id) {
+        return games.stream().filter(g -> g.getId().toString().equals(id)).findFirst();
     }
 }
