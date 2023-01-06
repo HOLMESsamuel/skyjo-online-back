@@ -6,6 +6,7 @@ import org.online.skyjo.object.Game;
 import org.online.skyjo.object.Player;
 import org.online.skyjo.service.GameService;
 import org.online.skyjo.service.PlayerService;
+import org.online.skyjo.websocket.GameWebsocket;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
@@ -26,6 +27,9 @@ public class GameController {
 
     @Inject
     GameService gameService;
+
+    @Inject
+    GameWebsocket gameWebsocket;
 
     @Inject
     PlayerService playerService;
@@ -73,6 +77,7 @@ public class GameController {
                 return PLAYER_ALREADY_EXISTS;
             }
             game.addPlayer(playerService.initiatePlayer(playerName, game.getDeck()));
+            gameWebsocket.broadcastMessage(id);
             return Response.ok(game).build();
         }
         return GAME_NOT_EXISTS;

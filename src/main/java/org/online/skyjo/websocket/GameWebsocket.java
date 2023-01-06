@@ -15,36 +15,33 @@ public class GameWebsocket {
 
 	@OnOpen
 	public void onOpen(Session session, @PathParam("id") String id) {
-		System.out.println("game " + id);
 		sessions.put(id, session);
-		broadcast(id, "User " + id + " joined");
-
 	}
 
 	@OnClose
 	public void onClose(Session session, @PathParam("id") String id) {
 		sessions.remove(id);
-		broadcast(id, "User " + id + " left");
+		broadcastMessage(id);
 	}
 
 	@OnError
 	public void onError(Session session, @PathParam("id") String id, Throwable throwable) {
 		sessions.remove(id);
-		broadcast(id, "User " + id + " left on error: " + throwable);
+		broadcastMessage(id);
 	}
 
 	@OnMessage
 	public void onMessage(String message, @PathParam("id") String id) {
 		if (message.equalsIgnoreCase("_ready_")) {
-			broadcast(id, "User " + id + " joined");
+			broadcastMessage(id);
 		} else {
-			broadcast(id, ">> " + id + ": " + message);
+			broadcastMessage(id);
 		}
 	}
-	
-	private void broadcast(String gameId, String message) {
-		sessions.entrySet().stream().filter(entry -> entry.getKey().equals(gameId)).forEach(entry -> {
-			entry.getValue().getAsyncRemote().sendObject(message, result -> {
+
+	public void broadcastMessage(String gameId) {
+		sessions.entrySet().stream().filter(entry -> entry.getKey().contains(gameId)).forEach(entry -> {
+			entry.getValue().getAsyncRemote().sendObject(gameId, result -> {
 				if (result.getException() != null) {
 					System.out.println("Unable to send message: " + result.getException());
 				}
