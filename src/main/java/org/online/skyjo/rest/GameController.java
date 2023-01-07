@@ -95,6 +95,10 @@ public class GameController {
                 player.getBoard().revealCard(firstCardsCoordinates.getRowCard1(), firstCardsCoordinates.getLineCard1());
                 player.getBoard().revealCard(firstCardsCoordinates.getRowCard2(), firstCardsCoordinates.getLineCard2());
                 player.setState(READY);
+                if(game.getPlayers().size() > 1 && game.getPlayers().stream().allMatch(p -> READY.equals(p.getState()))) {
+                    game.setState(GAME_READY);
+                }
+                gameWebsocket.broadcastMessage(id);
                 return Response.ok(game).build();
             }
             return PLAYER_NOT_EXISTS;

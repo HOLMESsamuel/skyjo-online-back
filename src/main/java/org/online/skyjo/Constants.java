@@ -7,6 +7,7 @@ public class Constants {
 
 	//game states
 	public static final String FINISH = "finish";
+	public static final String GAME_READY = "ready";
 	public static final String RUNNING = "running";
 
 	public static final String PICK_FROM_DECK = "deck";
