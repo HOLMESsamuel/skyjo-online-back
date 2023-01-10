@@ -52,6 +52,7 @@ public class GameController {
             Game game = gameOptional.get();
             gameService.startGame(game);
             if(RUNNING.equals(game.getState())) {
+                gameWebsocket.broadcastGame(game);
                 return Response.ok(game).build();
             }
             return GAME_NOT_READY;
@@ -77,7 +78,7 @@ public class GameController {
                 return PLAYER_ALREADY_EXISTS;
             }
             game.addPlayer(playerService.initiatePlayer(playerName, game.getDeck()));
-            gameWebsocket.broadcastMessage(id);
+            gameWebsocket.broadcastGame(game);
             return Response.ok(game).build();
         }
         return GAME_NOT_EXISTS;
@@ -98,7 +99,7 @@ public class GameController {
                 if(game.getPlayers().size() > 1 && game.getPlayers().stream().allMatch(p -> READY.equals(p.getState()))) {
                     game.setState(GAME_READY);
                 }
-                gameWebsocket.broadcastMessage(id);
+                gameWebsocket.broadcastGame(game);
                 return Response.ok(game).build();
             }
             return PLAYER_NOT_EXISTS;
