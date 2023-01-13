@@ -17,6 +17,7 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.online.skyjo.Constants.PREPARING;
 
 @ExtendWith(MockitoExtension.class)
 class GameServiceTest {
@@ -61,6 +62,7 @@ class GameServiceTest {
 		assertAll(
 				() -> verify(deckService).initiateDeck(),
 				() -> verify(playerService).initiatePlayer(playerName, deck),
+				() -> assertEquals(PREPARING, game.getState()),
 				() -> assertEquals(1, game.getPlayers().size()),
 				() -> assertEquals(playerName, game.getPlayers().get(0).getName())
 		);

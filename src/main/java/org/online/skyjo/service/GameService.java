@@ -32,6 +32,7 @@ public class GameService {
 		Deck deck = deckService.initiateDeck();
 
 		game.setId(uuid);
+		game.setState(PREPARING);
 		game.setPlayers(new ArrayList<>(List.of(playerService.initiatePlayer(playerName, deck))));
 		game.setDeck(deck);
 
