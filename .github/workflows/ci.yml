@@ -50,7 +50,7 @@ jobs:
         image: samuelholmes/skyjo-online
         context: .
         platforms: linux/amd64,linux/arm64
-        dockerfile: src/main/docker/Dockerfile.native-micro
+        file: src/main/docker/Dockerfile.native-micro
         push: true
-        tags: latest
+        tags: skyjo-online:latest
     
