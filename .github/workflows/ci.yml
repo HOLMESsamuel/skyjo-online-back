@@ -29,10 +29,7 @@ jobs:
         cache: maven
 
     - name: Build native with maven
-      run: mvn package -Dnative -Dquarkus.native.container-build=true
-      
-    - name: build with maven
-      run: mvn package
+      run: mvn package -Pnative
       
       # Add support for more platforms with QEMU (optional)
       # https://github.com/docker/setup-qemu-action
@@ -58,13 +55,5 @@ jobs:
         file: src/main/docker/Dockerfile.native-micro
         push: true
         tags: samuelholmes/skyjo-online-back-native:latest
-        
-    - name: Build and push
-      uses: docker/build-push-action@v3
-      with:
-        context: .
-        platforms: linux/arm/v7
-        file: src/main/docker/Dockerfile.jvm
-        push: true
-        tags: samuelholmes/skyjo-online-back-arm-v7:latest
+
     
