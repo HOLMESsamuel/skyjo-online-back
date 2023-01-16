@@ -63,8 +63,8 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         context: .
-        platforms: linux/amd64,linux/arm/v7
+        platforms: linux/arm/v7
         file: src/main/docker/Dockerfile.jvm
         push: true
-        tags: samuelholmes/skyjo-online-back:latest    
+        tags: samuelholmes/skyjo-online-back-arm-v7:latest
     

@@ -75,7 +75,7 @@
 #   accessed directly. (example: "foo.example.com,bar.example.com")
 #
 ###
-FROM openjdk:11
+FROM arm32v7/openjdk:11-jdk
 
 ENV LANGUAGE='en_US:en'
 
