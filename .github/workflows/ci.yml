@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Maven build, docker image build and push on docker hub
+name: Maven build for native and classic jvm version, docker image build and push on docker hub
 
 on:
   push:
@@ -29,7 +29,10 @@ jobs:
         cache: maven
 
     - name: Build native with maven
-      run: mvn package -Pnative  
+      run: mvn package -Dnative -Dquarkus.native.container-build=true
+      
+    - name: build with maven
+      run: mvn package
       
       # Add support for more platforms with QEMU (optional)
       # https://github.com/docker/setup-qemu-action
@@ -47,12 +50,21 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         
-    - name: Build and push
+    - name: Build and push native
       uses: docker/build-push-action@v3
       with:
         context: .
         platforms: linux/amd64,linux/arm/v7
         file: src/main/docker/Dockerfile.native-micro
         push: true
-        tags: samuelholmes/skyjo-online-back:latest
+        tags: samuelholmes/skyjo-online-back-native:latest
+        
+    - name: Build and push
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        platforms: linux/amd64,linux/arm/v7
+        file: src/main/docker/Dockerfile.jvm
+        push: true
+        tags: samuelholmes/skyjo-online-back:latest    
     
