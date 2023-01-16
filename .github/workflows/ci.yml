@@ -52,10 +52,9 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v3
       with:
-        image: samuelholmes/skyjo-online
         context: .
-        platforms: linux/amd64,linux/arm64
+        platforms: linux/amd64,linux/arm/v7
         file: src/main/docker/Dockerfile.native-micro
         push: true
-        tags: skyjo-online:latest
+        tags: samuelholmes/skyjo-online:latest
     
