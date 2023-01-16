@@ -52,7 +52,7 @@ jobs:
       with:
         context: .
         platforms: linux/amd64,linux/arm/v7
-        file: src/main/docker/Dockerfile.native-micro
+        file: src/main/docker/Dockerfile.native
         push: true
         tags: samuelholmes/skyjo-online-back:latest
     
