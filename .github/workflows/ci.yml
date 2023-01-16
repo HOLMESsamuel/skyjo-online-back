@@ -27,8 +27,6 @@ jobs:
         java-version: '11'
         distribution: 'temurin'
         cache: maven
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
 
     - name: Build native with maven
       run: mvn package -Pnative  
@@ -56,5 +54,5 @@ jobs:
         platforms: linux/amd64,linux/arm/v7
         file: src/main/docker/Dockerfile.native-micro
         push: true
-        tags: samuelholmes/skyjo-online:latest
+        tags: samuelholmes/skyjo-online-back:latest
     
