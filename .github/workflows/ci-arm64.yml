@@ -21,6 +21,22 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    
+      # Add support for more platforms with QEMU (optional)
+      # https://github.com/docker/setup-qemu-action
+    - name: Set up QEMU for more platform support
+      uses: docker/setup-qemu-action@v2
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+      with:
+       platforms: linux/arm64
+    
+    - name: Login to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build native compiler image
       uses: docker/build-push-action@v3
@@ -40,21 +56,6 @@ jobs:
     - name: Build native with maven
       run: mvn package -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.builder-image=samuelholmes/quarkus-build-aarch64:latest
       
-      # Add support for more platforms with QEMU (optional)
-      # https://github.com/docker/setup-qemu-action
-    - name: Set up QEMU for more platform support
-      uses: docker/setup-qemu-action@v2
-      
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v2
-      with:
-       platforms: linux/arm64
-    
-    - name: Login to Docker Hub
-      uses: docker/login-action@v2
-      with:
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
         
     - name: Build and push native
       uses: docker/build-push-action@v3
