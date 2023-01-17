@@ -46,7 +46,7 @@ jobs:
           cache: maven
 
       - name: Build native with maven
-        run: ./mvnw package -Pnative
+        run: mvn package -Pnative
 
 
       - name: Build and push native
