@@ -14,7 +14,7 @@
 # docker run -i --rm -p 8080:8080 quarkus/skyjo-online
 #
 ###
-FROM registry.access.redhat.com/ubi8/ubi-minimal:8.6
+FROM redhat/ubi8-minimal
 WORKDIR /work/
 RUN chown 1001 /work \
     && chmod "g+rwX" /work \

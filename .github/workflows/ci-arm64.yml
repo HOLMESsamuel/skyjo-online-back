@@ -38,6 +38,15 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
+    - name: Build and push native
+      uses: docker/build-push-action@v3
+      with:
+        context: .
+        platforms: linux/arm64
+        file: src/main/docker/Dockerfile.build.aarch64
+        push: true
+        tags: samuelholmes/quarkus-arm64-native-compiler:latest
+
     - name: Set up JDK 11
       uses: actions/setup-java@v3
       with:
@@ -46,7 +55,7 @@ jobs:
         cache: maven
 
     - name: Build native with maven
-      run: mvn package -Dnative -Dquarkus.native.container-build=true -Dquarkus.container-image.build=true
+      run: mvn package -Dnative -Dquarkus.native.container-build=true -Dquarkus.native.builder-image=samuelholmes/quarkus-arm64-native-compiler:latest
       
         
     - name: Build and push native
@@ -54,7 +63,7 @@ jobs:
       with:
         context: .
         platforms: linux/arm64
-        file: src/main/docker/Dockerfile.native-micro
+        file: src/main/docker/Dockerfile.native
         push: true
         tags: samuelholmes/skyjo-online-back-native-arm64:latest
 
