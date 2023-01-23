@@ -2,6 +2,8 @@ package org.online.skyjo.service;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -92,6 +94,20 @@ class GameServiceTest {
 		assertAll(
 				() -> assertEquals(2, orderedPlayerList.size()),
 				() -> assertEquals(player2, orderedPlayerList.get(0))
+		);
+	}
+
+	@ParameterizedTest
+	@CsvSource(value = {"0, 1", "1, 0"})
+	void nextPlayerTurn(int currentPlayerIndex, int nextPlayerExpectedIndex) {
+		List<Player> players = List.of(new Player(), new Player());
+
+		Player currentPlayer = players.get(currentPlayerIndex);
+
+		gameService.nextPlayerTurn(players, currentPlayer);
+
+		assertAll(
+				() -> assertTrue(players.get(nextPlayerExpectedIndex).isPlayerTurn())
 		);
 	}
 

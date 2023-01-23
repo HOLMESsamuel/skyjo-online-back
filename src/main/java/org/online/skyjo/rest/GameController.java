@@ -134,6 +134,7 @@ public class GameController {
             if(optionalPlayer.isPresent()) {
                 Player player = optionalPlayer.get();
                 playerService.playCard(player, choice.getChoiceString(), game.getDeck(), choice.getRow(), choice.getLine());
+                gameService.nextPlayerTurn(game.getPlayers(), player);
                 return Response.ok(game).build();
             }
             return PLAYER_NOT_EXISTS;

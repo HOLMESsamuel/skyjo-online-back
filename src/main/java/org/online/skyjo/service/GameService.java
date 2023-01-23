@@ -49,6 +49,8 @@ public class GameService {
 
 			game.setPlayers(setPlayersOrder(players));
 
+			game.getPlayers().get(0).setPlayerTurn(true);
+
 			game.setState(RUNNING);
 		}
 	}
@@ -88,5 +90,21 @@ public class GameService {
 		}
 
 		return firstPlayer;
+	}
+
+	/**
+	 * Manages the player turn boolean : only one player is playing at a time, if the current player was the last of the list
+	 * the next one is the first of the list, otherwise it is the next in the list.
+	 * @param players list of players
+	 * @param currentPlayer the player that has just finished his turn
+	 */
+	public void nextPlayerTurn(List<Player> players, Player currentPlayer) {
+		int currentPlayerIndex = players.indexOf(currentPlayer);
+		if(currentPlayerIndex == players.size() - 1) {
+			players.get(0).setPlayerTurn(true);
+		} else {
+			players.get(currentPlayerIndex + 1).setPlayerTurn(true);
+		}
+		currentPlayer.setPlayerTurn(false);
 	}
 }

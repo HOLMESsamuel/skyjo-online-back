@@ -13,6 +13,7 @@ public class Player implements Comparable<Player>{
 	private Board board;
 	private Card cardInHand;
 	private String state;
+	private boolean playerTurn;
 
 	public Player(String name) {
 		this.name = name;
