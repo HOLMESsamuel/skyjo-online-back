@@ -77,6 +77,12 @@ public class GameController {
             if (game.getPlayers().stream().anyMatch(p -> playerName.equals(p.getName()))) {
                 return PLAYER_ALREADY_EXISTS;
             }
+            if (RUNNING.equals(game.getState())){
+                return GAME_ALREADY_STARTED;
+            }
+            if (game.getPlayers().size() > 7) {
+                return TOO_MANY_PLAYERS;
+            }
             game.addPlayer(playerService.initiatePlayer(playerName, game.getDeck()));
             gameWebsocket.broadcastGame(game);
             return Response.ok(game).build();
