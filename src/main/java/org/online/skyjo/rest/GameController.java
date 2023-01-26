@@ -4,6 +4,8 @@ import org.online.skyjo.object.Choice;
 import org.online.skyjo.object.Coordinates;
 import org.online.skyjo.object.Game;
 import org.online.skyjo.object.Player;
+import org.online.skyjo.service.BoardService;
+import org.online.skyjo.service.DeckService;
 import org.online.skyjo.service.GameService;
 import org.online.skyjo.service.PlayerService;
 import org.online.skyjo.websocket.GameWebsocket;
@@ -32,7 +34,13 @@ public class GameController {
     GameWebsocket gameWebsocket;
 
     @Inject
+    BoardService boardService;
+
+    @Inject
     PlayerService playerService;
+
+    @Inject
+    DeckService deckService;
 
     @GET
     @Path("/{id}")
@@ -40,6 +48,34 @@ public class GameController {
         Optional<Game> gameOptional = findGame(id);
         if(gameOptional.isPresent()) {
             return Response.ok(gameOptional.get()).build();
+        }
+        return GAME_NOT_EXISTS;
+    }
+
+    @DELETE
+    @Path("/{id}")
+    public Response deleteGame(@PathParam("id") String id) {
+        Optional<Game> gameOptional = findGame(id);
+        if(gameOptional.isPresent()) {
+            games.remove(gameOptional.get());
+            return Response.ok().build();
+        }
+        return GAME_NOT_EXISTS;
+    }
+
+    @PUT
+    @Path("/{id}/new-game")
+    public Response resetGame(@PathParam("id") String id) {
+        Optional<Game> gameOptional = findGame(id);
+        if(gameOptional.isPresent()) {
+            Game game = gameOptional.get();
+            game.setDeck(deckService.initiateDeck());
+            game.getPlayers().forEach(p -> p.setBoard(boardService.initiateBoard(game.getDeck())));
+            game.getPlayers().forEach(p -> p.setState(null));
+            game.getPlayers().forEach(p -> p.setCardInHand(null));
+            game.setState(PREPARING);
+            gameWebsocket.broadcastGame(game);
+            return Response.ok(game).build();
         }
         return GAME_NOT_EXISTS;
     }
@@ -141,7 +177,15 @@ public class GameController {
             if(optionalPlayer.isPresent()) {
                 Player player = optionalPlayer.get();
                 playerService.playCard(player, choice.getChoiceString(), game.getDeck(), choice.getRow(), choice.getLine());
+                boardService.eliminateColumn(player.getBoard(), game.getDeck());
+                if(player.getBoard().isVisible()) {
+                    playerService.stateFinished(player);
+                }
                 gameService.nextPlayerTurn(game.getPlayers(), player);
+                if(FINISH.equals(gameService.findCurrentPlayer(game.getPlayers()).getState())) {
+                    game.setState(FINISH);
+                    game.getPlayers().forEach(p -> p.setScore(p.getBoard().computeScore() + p.getScore()));
+                }
                 gameWebsocket.broadcastGame(game);
                 return Response.ok(game).build();
             }

@@ -107,4 +107,8 @@ public class GameService {
 		}
 		currentPlayer.setPlayerTurn(false);
 	}
+
+	public Player findCurrentPlayer(List<Player> players) {
+		return players.stream().filter(Player::isPlayerTurn).findFirst().get();
+	}
 }

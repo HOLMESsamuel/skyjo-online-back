@@ -40,6 +40,10 @@ class BoardServiceTest {
 		Card card22 = new Card(1);
 		Card card23 = new Card(2);
 
+		card01.setVisible(true);
+		card12.setVisible(true);
+		card22.setVisible(true);
+
 		Card[][] grid = {{card00, card01, card02, card03},
 				{card10, card11, card12, card13},
 				{card20, card21, card22, card23}};
@@ -49,13 +53,16 @@ class BoardServiceTest {
 		board.setGrid(grid);
 
 		//execute
-		boardService.eliminateRow(board, deck);
+		boardService.eliminateColumn(board, deck);
 
 		//control
 		assertAll(
-				() -> assertEquals(0, board.getGrid()[0][0].getNumber()),
-				() -> assertEquals(0, board.getGrid()[1][0].getNumber()),
-				() -> assertEquals(0, board.getGrid()[2][0].getNumber()),
+				() -> assertEquals(1, board.getGrid()[0][0].getNumber()),
+				() -> assertEquals(1, board.getGrid()[1][0].getNumber()),
+				() -> assertEquals(1, board.getGrid()[2][0].getNumber()),
+				() -> assertEquals(1, board.getGrid()[0][1].getNumber()),
+				() -> assertEquals(1, board.getGrid()[1][1].getNumber()),
+				() -> assertEquals(1, board.getGrid()[2][1].getNumber()),
 				() -> assertEquals(2, board.getGrid()[2][3].getNumber()),
 				() -> assertEquals(1, deck.getRemovedCards().get(0).getNumber())
 		);

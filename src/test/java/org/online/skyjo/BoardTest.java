@@ -56,8 +56,8 @@ class BoardTest {
 	 * @return a board with the two cars in its grid
 	 */
 	private Board createTwoCardsTestBoard(int numberCard1, boolean isVisibleCard1, int numberCard2, boolean isVisibleCard2) {
-		Card card1 = new Card(numberCard1, isVisibleCard1);
-		Card card2 = new Card(numberCard2, isVisibleCard2);
+		Card card1 = new Card(numberCard1, isVisibleCard1, false);
+		Card card2 = new Card(numberCard2, isVisibleCard2, false);
 		Board board = new Board();
 		Card[][] grid = { {card1}, {card2} };
 		board.setGrid(grid);

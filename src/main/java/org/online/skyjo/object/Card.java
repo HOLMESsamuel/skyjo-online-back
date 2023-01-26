@@ -13,6 +13,9 @@ public class Card {
 	private int number;
 	private boolean visible;
 
+	//true quand la carte est dans une colonne éliminée par la présence de trois cartes identiques
+	private boolean eliminated;
+
 	public Card(int number) {
 		this.number = number;
 	}

@@ -40,20 +40,22 @@ public class BoardService {
 	}
 
 	/**
-	 * Make a row cores 0 if all cards of the row have the same value, just like in the game.
+	 * Make a column cards 0 if all cards of the column have the same value, just like in the game.
 	 */
-	public void eliminateRow(Board board, Deck deck) {
+	public void eliminateColumn(Board board, Deck deck) {
 		Card[][] grid = board.getGrid();
 		for(int i = 0; i<grid[0].length; i++) {
-			boolean allValueEqualsInRow = true;
+			boolean allValueEqualsInColumn = true;
 			int rowValue = grid[0][i].getNumber();
 			for(Card[] cards : grid) {
-				allValueEqualsInRow = cards[i].getNumber() == rowValue;
+				allValueEqualsInColumn = cards[i].getNumber() == rowValue && cards[i].isVisible();
 			}
-			if(allValueEqualsInRow && rowValue !=0) {
+			if(allValueEqualsInColumn && rowValue !=0) {
 				for(Card[] cards : grid) {
 					deck.getRemovedCards().add(cards[i]);
 					cards[i] = new Card(0);
+					cards[i].setVisible(true);
+					cards[i].setEliminated(true);
 				}
 			}
 		}
