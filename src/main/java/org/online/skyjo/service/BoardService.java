@@ -44,13 +44,18 @@ public class BoardService {
 	 */
 	public void eliminateColumn(Board board, Deck deck) {
 		Card[][] grid = board.getGrid();
-		for(int i = 0; i<grid[0].length; i++) {
+		//go through the 4 columns
+		for(int i = 0; i <4; i++) {
+			//get the first number in column
+			int columnValue = grid[0][i].getNumber();
+			//suppose all values in column are equals to the first number of the column
 			boolean allValueEqualsInColumn = true;
-			int rowValue = grid[0][i].getNumber();
-			for(Card[] cards : grid) {
-				allValueEqualsInColumn = cards[i].getNumber() == rowValue && cards[i].isVisible();
+
+			for(int j = 0; j<3; j++) {
+				allValueEqualsInColumn = allValueEqualsInColumn && grid[j][i].getNumber() == columnValue && grid[j][i].isVisible();
 			}
-			if(allValueEqualsInColumn && rowValue !=0) {
+
+			if(allValueEqualsInColumn && columnValue !=0) {
 				for(Card[] cards : grid) {
 					deck.getRemovedCards().add(cards[i]);
 					cards[i] = new Card(0);
