@@ -6,17 +6,16 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.online.skyjo.object.Board;
-import org.online.skyjo.object.Card;
-import org.online.skyjo.object.Deck;
-import org.online.skyjo.object.Player;
+import org.online.skyjo.object.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.online.skyjo.Constants.FINISH;
+import static org.online.skyjo.Constants.READY;
 
 @ExtendWith(MockitoExtension.class)
 class PlayerServiceTest {
@@ -130,6 +129,33 @@ class PlayerServiceTest {
                 () -> assertEquals(board, player.getBoard()),
                 () -> assertEquals(0, player.getScore())
         );
+    }
+
+    @Test
+    void resetPlayerForNextGame() {
+        //prepare
+        Game game = Mockito.mock(Game.class);
+        when(game.getDeck()).thenReturn(new Deck());
+        int score = 12;
+        Player player = new Player();
+        player.setCardInHand(new Card(0));
+        player.setPlayerTurn(true);
+        player.setState(READY);
+        player.setScore(score);
+
+
+        //execute
+        playerService.resetPlayerForNextGame(player, game);
+
+        //control
+        assertAll(
+                () -> assertFalse(player.isPlayerTurn()),
+                () -> assertNull(player.getCardInHand()),
+                () -> assertNull(player.getState()),
+                () -> assertEquals(score, player.getScore())
+        );
+
+
     }
 
 }
