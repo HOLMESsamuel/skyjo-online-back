@@ -202,6 +202,7 @@ public class GameController {
             Game game = gameOptional.get();
             if(FINISH.equals(game.getState())) {
                 for(Player player : game.getPlayers()) {
+                    player.getBoard().revealAllCards();
                     player.setScore(player.getBoard().computeScore());
                 }
                 Collections.sort(game.getPlayers());

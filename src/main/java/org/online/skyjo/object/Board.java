@@ -44,6 +44,14 @@ public class Board {
 		grid[row][line].setVisible(true);
 	}
 
+	public void revealAllCards() {
+		for(Card[] cardLine : this.grid) {
+			for (Card card : cardLine) {
+				card.setVisible(true);
+			}
+		}
+	}
+
 	public void replaceCard(int row, int line, Card card) {
 		card.setVisible(true);
 		grid[row][line] = card;
