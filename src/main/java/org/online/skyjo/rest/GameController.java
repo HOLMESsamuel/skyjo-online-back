@@ -70,9 +70,7 @@ public class GameController {
         if(gameOptional.isPresent()) {
             Game game = gameOptional.get();
             game.setDeck(deckService.initiateDeck());
-            game.getPlayers().forEach(p -> p.setBoard(boardService.initiateBoard(game.getDeck())));
-            game.getPlayers().forEach(p -> p.setState(null));
-            game.getPlayers().forEach(p -> p.setCardInHand(null));
+            game.getPlayers().forEach(p -> playerService.resetPlayerForNextGame(p, game));
             game.setState(PREPARING);
             gameWebsocket.broadcastGame(game);
             return Response.ok(game).build();

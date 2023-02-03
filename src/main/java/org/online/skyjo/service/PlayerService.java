@@ -2,6 +2,7 @@ package org.online.skyjo.service;
 
 import org.online.skyjo.object.Board;
 import org.online.skyjo.object.Deck;
+import org.online.skyjo.object.Game;
 import org.online.skyjo.object.Player;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -98,5 +99,18 @@ public class PlayerService {
         if(player.getBoard().isVisible()) {
             player.setState(FINISH);
         }
+    }
+
+    /**
+     * Reset the player board, state, card inhand, and player turn boolean to get ready for next game
+     * the player score is saved
+     * @param player player to reset
+     * @param game game to take the cards from
+     */
+    public void resetPlayerForNextGame(Player player, Game game) {
+        player.setBoard(boardService.initiateBoard(game.getDeck()));
+        player.setState(null);
+        player.setCardInHand(null);
+        player.setPlayerTurn(false);
     }
 }
