@@ -7,6 +7,7 @@ import org.online.skyjo.object.RandomProvider;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +36,7 @@ public class GameService {
 		game.setState(PREPARING);
 		game.setPlayers(new ArrayList<>(List.of(playerService.initiatePlayer(playerName, deck))));
 		game.setDeck(deck);
+		game.setLastModificationDate(LocalDateTime.now());
 
 		return game;
 	}
@@ -50,6 +52,8 @@ public class GameService {
 			game.setPlayers(setPlayersOrder(players));
 
 			game.getPlayers().get(0).setPlayerTurn(true);
+
+			game.setLastModificationDate(LocalDateTime.now());
 
 			game.setState(RUNNING);
 		}

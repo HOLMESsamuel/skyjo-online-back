@@ -1,11 +1,13 @@
 package org.online.skyjo.websocket;
 
+import lombok.Getter;
 import org.online.skyjo.object.Game;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -16,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * The game is broadcasted to each websocket session whose id contains the gameId.
  */
 @ServerEndpoint(value = "/websocket/games/{id}", encoders = MessageEncoder.class)
+@Getter
 @ApplicationScoped
 public class GameWebsocket {
 
@@ -29,7 +32,6 @@ public class GameWebsocket {
 	@OnClose
 	public void onClose(Session session, @PathParam("id") String id) {
 		sessions.remove(id);
-		broadcastMessage(id);
 	}
 
 	@OnError
@@ -62,6 +64,7 @@ public class GameWebsocket {
 	 * @param game
 	 */
 	public void broadcastGame(Game game) {
+		game.setLastModificationDate(LocalDateTime.now());
 		sessions.entrySet().stream().filter(entry -> entry.getKey().contains(game.getId().toString())).forEach(entry -> {
 			entry.getValue().getAsyncRemote().sendObject(game, result -> {
 				if (result.getException() != null) {

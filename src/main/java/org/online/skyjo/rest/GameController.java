@@ -1,5 +1,6 @@
 package org.online.skyjo.rest;
 
+import lombok.Getter;
 import org.online.skyjo.object.Choice;
 import org.online.skyjo.object.Coordinates;
 import org.online.skyjo.object.Game;
@@ -10,6 +11,7 @@ import org.online.skyjo.service.GameService;
 import org.online.skyjo.service.PlayerService;
 import org.online.skyjo.websocket.GameWebsocket;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.transaction.Transactional;
 import javax.ws.rs.*;
@@ -23,9 +25,11 @@ import static org.online.skyjo.Constants.*;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @Transactional
+@ApplicationScoped
+@Getter
 public class GameController {
 
-    private static final List<Game> games = new ArrayList<>();
+    List<Game> games = new ArrayList<>();
 
     @Inject
     GameService gameService;
