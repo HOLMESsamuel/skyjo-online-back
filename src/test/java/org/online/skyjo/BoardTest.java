@@ -22,7 +22,7 @@ class BoardTest {
 	void computeScore() {
 		Board board = createTwoCardsTestBoard(12, true, -1, false);
 
-		assertEquals(12, board.computeScore());
+		assertEquals(11, board.computeScore());
 	}
 
 	@Test
