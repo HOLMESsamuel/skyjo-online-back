@@ -1,5 +1,6 @@
 package org.online.skyjo.batch;
 
+import io.quarkus.scheduler.Scheduled;
 import org.online.skyjo.object.Game;
 import org.online.skyjo.rest.GameController;
 import org.online.skyjo.websocket.GameWebsocket;
@@ -22,6 +23,12 @@ import java.util.Map;
 @ApplicationScoped
 public class RemoveOldGamesJob implements Job {
 
+	@Inject
+	GameController gameController;
+
+	@Inject
+	GameWebsocket gameWebsocket;
+
 	/**
 	 * This method removes all the games from the list of games which are older than 10 minutes.
 	 * The age of a game is calculated as the duration between the game's last modification date and current date time.
@@ -42,24 +49,35 @@ public class RemoveOldGamesJob implements Job {
 	@Override
 	public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
 		try {
-			//get a reference to the BeanManager
-			BeanManager beanManager = CDI.current().getBeanManager();
-
-			//get a reference to the GameController bean
-			Bean<GameController> gameControllerBean = (Bean<GameController>) beanManager.getBeans(GameController.class).iterator().next();
-			CreationalContext<GameController> gameControllerCreationalContext = beanManager.createCreationalContext(gameControllerBean);
-			GameController gameController = (GameController) beanManager.getReference(gameControllerBean, GameController.class, gameControllerCreationalContext);
-			//get a reference to the GameWebsocket bean
-			Bean<GameWebsocket> gameWebsocketBean = (Bean<GameWebsocket>) beanManager.getBeans(GameWebsocket.class).iterator().next();
-			CreationalContext<GameWebsocket> gameWebsocketCreationalContext = beanManager.createCreationalContext(gameWebsocketBean);
-			GameWebsocket gameWebsocket = (GameWebsocket) beanManager.getReference(gameWebsocketBean, GameWebsocket.class, gameWebsocketCreationalContext);
-
-			Map<String, Session> sessions = gameWebsocket.getSessions();
 			List<Game> games = gameController.getGames();
-
+			Map<String, Session> sessions = gameWebsocket.getSessions();
 			removeOldGames(games, sessions);
 		} catch (Exception e) {
 			throw new JobExecutionException(e);
 		}
 	}
+
+//	@Override
+//	public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
+//		try {
+//			//get a reference to the BeanManager
+//			BeanManager beanManager = CDI.current().getBeanManager();
+//
+//			//get a reference to the GameController bean
+//			Bean<GameController> gameControllerBean = (Bean<GameController>) beanManager.getBeans(GameController.class).iterator().next();
+//			CreationalContext<GameController> gameControllerCreationalContext = beanManager.createCreationalContext(gameControllerBean);
+//			GameController gameController = (GameController) beanManager.getReference(gameControllerBean, GameController.class, gameControllerCreationalContext);
+//			//get a reference to the GameWebsocket bean
+//			Bean<GameWebsocket> gameWebsocketBean = (Bean<GameWebsocket>) beanManager.getBeans(GameWebsocket.class).iterator().next();
+//			CreationalContext<GameWebsocket> gameWebsocketCreationalContext = beanManager.createCreationalContext(gameWebsocketBean);
+//			GameWebsocket gameWebsocket = (GameWebsocket) beanManager.getReference(gameWebsocketBean, GameWebsocket.class, gameWebsocketCreationalContext);
+//
+//			Map<String, Session> sessions = gameWebsocket.getSessions();
+//			List<Game> games = gameController.getGames();
+//
+//			removeOldGames(games, sessions);
+//		} catch (Exception e) {
+//			throw new JobExecutionException(e);
+//		}
+//	}
 }

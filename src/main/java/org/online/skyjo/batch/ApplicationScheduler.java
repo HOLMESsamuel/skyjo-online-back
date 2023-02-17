@@ -1,27 +1,30 @@
 package org.online.skyjo.batch;
 
+import io.quarkus.runtime.StartupEvent;
 import org.quartz.*;
-import org.quartz.impl.StdSchedulerFactory;
 
+import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Observes;
+import javax.inject.Inject;
+
+@ApplicationScoped
 public class ApplicationScheduler {
-	public void init() {
-		try {
-			SchedulerFactory schedulerFactory = new StdSchedulerFactory();
-			Scheduler scheduler = schedulerFactory.getScheduler();
-			JobDetail job = JobBuilder.newJob(RemoveOldGamesJob.class)
-					.withIdentity("RemoveOldGamesJob", "group1")
-					.build();
-			Trigger trigger = TriggerBuilder.newTrigger()
-					.withIdentity("RemoveOldGamesTrigger", "group1")
-					.startNow()
-					.withSchedule(SimpleScheduleBuilder.simpleSchedule()
-							.withIntervalInMinutes(5)
-							.repeatForever())
-					.build();
-			scheduler.scheduleJob(job, trigger);
-			scheduler.start();
-		} catch (SchedulerException ex) {
-			// Gérer l'exception
-		}
+
+	@Inject
+	org.quartz.Scheduler quartz;
+
+	void onStart(@Observes StartupEvent event) throws SchedulerException{
+		JobDetail job = JobBuilder.newJob(RemoveOldGamesJob.class)
+				.withIdentity("removeOldGames", "cleaning")
+				.build();
+
+		Trigger trigger = TriggerBuilder.newTrigger()
+				.withIdentity("initTrigger", "init")
+				.withSchedule(SimpleScheduleBuilder.simpleSchedule()
+						.withIntervalInMinutes(5)
+						.repeatForever())
+				.build();
+
+		quartz.scheduleJob(job, trigger);
 	}
 }
