@@ -56,28 +56,4 @@ public class RemoveOldGamesJob implements Job {
 			throw new JobExecutionException(e);
 		}
 	}
-
-//	@Override
-//	public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-//		try {
-//			//get a reference to the BeanManager
-//			BeanManager beanManager = CDI.current().getBeanManager();
-//
-//			//get a reference to the GameController bean
-//			Bean<GameController> gameControllerBean = (Bean<GameController>) beanManager.getBeans(GameController.class).iterator().next();
-//			CreationalContext<GameController> gameControllerCreationalContext = beanManager.createCreationalContext(gameControllerBean);
-//			GameController gameController = (GameController) beanManager.getReference(gameControllerBean, GameController.class, gameControllerCreationalContext);
-//			//get a reference to the GameWebsocket bean
-//			Bean<GameWebsocket> gameWebsocketBean = (Bean<GameWebsocket>) beanManager.getBeans(GameWebsocket.class).iterator().next();
-//			CreationalContext<GameWebsocket> gameWebsocketCreationalContext = beanManager.createCreationalContext(gameWebsocketBean);
-//			GameWebsocket gameWebsocket = (GameWebsocket) beanManager.getReference(gameWebsocketBean, GameWebsocket.class, gameWebsocketCreationalContext);
-//
-//			Map<String, Session> sessions = gameWebsocket.getSessions();
-//			List<Game> games = gameController.getGames();
-//
-//			removeOldGames(games, sessions);
-//		} catch (Exception e) {
-//			throw new JobExecutionException(e);
-//		}
-//	}
 }
