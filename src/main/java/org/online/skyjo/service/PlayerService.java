@@ -29,6 +29,18 @@ public class PlayerService {
         return player;
     }
 
+    public Player initiateBot(String botName, Deck deck) {
+        Player bot = new Player(botName);
+        bot.setScore(0);
+        bot.setBoard(boardService.initiateBoard(deck));
+        //reveal two random cards of the bot
+        boardService.revealRandomCards(bot.getBoard(), 2);
+        bot.setState(READY);
+        bot.setBot(true);
+
+        return bot;
+    }
+
     public void pickCard(Player player, Deck deck) {
         player.setCardInHand(deckService.pickRandomCard(deck));
     }

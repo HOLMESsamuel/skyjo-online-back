@@ -65,4 +65,21 @@ public class BoardService {
 			}
 		}
 	}
+
+	/**
+	 * Reveal a number of random cards of the board.
+	 * Used to reveal the two first cards of the bot.
+	 */
+	public void revealRandomCards(Board board, int numberOfCards) {
+		Card[][] grid = board.getGrid();
+		for(int i = 0; i<numberOfCards; i++) {
+			int randomRow = (int) (Math.random() * 3);
+			int randomLine = (int) (Math.random() * 4);
+			if(!grid[randomRow][randomLine].isVisible()) {
+				grid[randomRow][randomLine].setVisible(true);
+			} else {
+				i--;
+			}
+		}
+	}
 }

@@ -1,9 +1,6 @@
 package org.online.skyjo.service;
 
-import org.online.skyjo.object.Deck;
-import org.online.skyjo.object.Game;
-import org.online.skyjo.object.Player;
-import org.online.skyjo.object.RandomProvider;
+import org.online.skyjo.object.*;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -26,6 +23,9 @@ public class GameService {
 
 	@Inject
 	RandomProvider randomProvider;
+
+	@Inject
+	BoardService boardService;
 
 	public Game initiateGame(String playerName) {
 		Game game = new Game();
@@ -104,15 +104,74 @@ public class GameService {
 	 */
 	public void nextPlayerTurn(List<Player> players, Player currentPlayer) {
 		int currentPlayerIndex = players.indexOf(currentPlayer);
+		Player nextPlayer;
 		if(currentPlayerIndex == players.size() - 1) {
-			players.get(0).setPlayerTurn(true);
+			nextPlayer = players.get(0);
 		} else {
-			players.get(currentPlayerIndex + 1).setPlayerTurn(true);
+			nextPlayer = players.get(currentPlayerIndex + 1);
 		}
+		nextPlayer.setPlayerTurn(true);
 		currentPlayer.setPlayerTurn(false);
 	}
 
 	public Player findCurrentPlayer(List<Player> players) {
 		return players.stream().filter(Player::isPlayerTurn).findFirst().get();
+	}
+
+	/**
+	 * Choose a name from a bot in the list of names.
+	 * Can not choose a name that is already taken.
+	 */
+	public String chooseBotName(List<String> botNames, List<Player> players) {
+		String botName = botNames.get(randomProvider.getRandom().nextInt(botNames.size()));
+		if(players.stream().anyMatch(p -> p.getName().equals(botName))) {
+			return chooseBotName(botNames, players);
+		}
+		return botName;
+	}
+
+	/**
+	 * Sets the player state to ready and checks if all players are ready to start the game.
+	 * @param player the player that is ready
+	 * @param game the game
+	 * @param firstCardsCoordinates the coordinates of the first cards to reveal
+	 */
+	public void playerReady(Player player, Game game, Coordinates firstCardsCoordinates) {
+		player.getBoard().revealCard(firstCardsCoordinates.getRowCard1(), firstCardsCoordinates.getLineCard1());
+		player.getBoard().revealCard(firstCardsCoordinates.getRowCard2(), firstCardsCoordinates.getLineCard2());
+		player.setState(READY);
+		if(game.getPlayers().size() > 1 && game.getPlayers().stream().allMatch(p -> READY.equals(p.getState()))) {
+			game.setState(GAME_READY);
+		}
+	}
+
+	/**
+	 * Resets the game for a new one.
+	 * @param game the game to reset
+	 */
+	public void resetGame(Game game) {
+		game.setDeck(deckService.initiateDeck());
+		game.getPlayers().forEach(p -> playerService.resetPlayerForNextGame(p, game));
+		game.setState(PREPARING);
+	}
+
+	/**
+	 * Manages the player turn and the game state.
+	 * @param player the player that has just played a card
+	 * @param game the game
+	 * @param choice the choice made by the player
+	 */
+	public void playerPlayCard(Player player, Game game, Choice choice) {
+		playerService.playCard(player, choice.getChoiceString(), game.getDeck(), choice.getRow(), choice.getLine());
+		boardService.eliminateColumn(player.getBoard(), game.getDeck());
+		if(player.getBoard().isVisible()) {
+			playerService.stateFinished(player);
+		}
+		nextPlayerTurn(game.getPlayers(), player);
+		Player currentPlayer = findCurrentPlayer(game.getPlayers());
+		if(FINISH.equals(currentPlayer.getState())) {
+			game.setState(FINISH);
+			game.getPlayers().forEach(p -> p.setScore(p.getBoard().computeScore() + p.getScore()));
+		}
 	}
 }

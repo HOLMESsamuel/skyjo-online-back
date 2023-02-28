@@ -73,9 +73,7 @@ public class GameController {
         Optional<Game> gameOptional = findGame(id);
         if(gameOptional.isPresent()) {
             Game game = gameOptional.get();
-            game.setDeck(deckService.initiateDeck());
-            game.getPlayers().forEach(p -> playerService.resetPlayerForNextGame(p, game));
-            game.setState(PREPARING);
+            gameService.resetGame(game);
             gameWebsocket.broadcastGame(game);
             return Response.ok(game).build();
         }
@@ -129,6 +127,26 @@ public class GameController {
     }
 
     @PUT
+    @Path("join/{id}/bot")
+    public Response botJoinGame(@PathParam("id") String id) {
+        Optional<Game> gameOptional = findGame(id);
+        if(gameOptional.isPresent()) {
+            Game game = gameOptional.get();
+            if (RUNNING.equals(game.getState())){
+                return GAME_ALREADY_STARTED;
+            }
+            if (game.getPlayers().size() > 7) {
+                return TOO_MANY_PLAYERS;
+            }
+            String botName = gameService.chooseBotName(BOT_NAMES, game.getPlayers());
+            game.addPlayer(playerService.initiateBot(botName, game.getDeck()));
+            gameWebsocket.broadcastGame(game);
+            return Response.ok(game).build();
+        }
+        return GAME_NOT_EXISTS;
+    }
+
+    @PUT
     @Path("/{id}/{name}/ready")
     public Response playerReady(@PathParam("id") String id, @PathParam("name") String playerName, Coordinates firstCardsCoordinates) {
         Optional<Game> gameOptional = findGame(id);
@@ -137,12 +155,7 @@ public class GameController {
             Optional<Player> optionalPlayer = game.getPlayers().stream().filter(p -> p.getName().equals(playerName)).findFirst();
             if(optionalPlayer.isPresent()) {
                 Player player = optionalPlayer.get();
-                player.getBoard().revealCard(firstCardsCoordinates.getRowCard1(), firstCardsCoordinates.getLineCard1());
-                player.getBoard().revealCard(firstCardsCoordinates.getRowCard2(), firstCardsCoordinates.getLineCard2());
-                player.setState(READY);
-                if(game.getPlayers().size() > 1 && game.getPlayers().stream().allMatch(p -> READY.equals(p.getState()))) {
-                    game.setState(GAME_READY);
-                }
+                gameService.playerReady(player, game, firstCardsCoordinates);
                 gameWebsocket.broadcastGame(game);
                 return Response.ok(game).build();
             }
@@ -178,16 +191,7 @@ public class GameController {
             Optional<Player> optionalPlayer = game.getPlayers().stream().filter(p -> p.getName().equals(playerName)).findFirst();
             if(optionalPlayer.isPresent()) {
                 Player player = optionalPlayer.get();
-                playerService.playCard(player, choice.getChoiceString(), game.getDeck(), choice.getRow(), choice.getLine());
-                boardService.eliminateColumn(player.getBoard(), game.getDeck());
-                if(player.getBoard().isVisible()) {
-                    playerService.stateFinished(player);
-                }
-                gameService.nextPlayerTurn(game.getPlayers(), player);
-                if(FINISH.equals(gameService.findCurrentPlayer(game.getPlayers()).getState())) {
-                    game.setState(FINISH);
-                    game.getPlayers().forEach(p -> p.setScore(p.getBoard().computeScore() + p.getScore()));
-                }
+                gameService.playerPlayCard(player, game, choice);
                 gameWebsocket.broadcastGame(game);
                 return Response.ok(game).build();
             }

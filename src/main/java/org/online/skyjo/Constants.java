@@ -1,6 +1,8 @@
 package org.online.skyjo;
 
 import javax.ws.rs.core.Response;
+import java.util.Arrays;
+import java.util.List;
 
 public class Constants {
 	public static final int DECK_SIZE = 150;
@@ -28,6 +30,8 @@ public class Constants {
 	public static final Response PLAYER_NOT_EXISTS = Response.status(404, "This player does not exists").build();
 	public static final Response PLAYER_ALREADY_EXISTS = Response.status(409, "A player already exists with this name.").build();
 	public static final Response GAME_NOT_READY = Response.status(409, "The game is not ready to begin").build();
+
+	public static final List<String> BOT_NAMES = Arrays.asList("Bob", "Siri", "ChatGPT", "HAL 9000", "Jarvis", "Skynet", "Alpha GO");
 
 	private Constants() {
 

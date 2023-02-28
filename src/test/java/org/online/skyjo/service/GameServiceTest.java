@@ -19,6 +19,7 @@ import java.util.Random;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.online.skyjo.Constants.BOT_NAMES;
 import static org.online.skyjo.Constants.PREPARING;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,6 +34,9 @@ class GameServiceTest {
 
 	@Mock
 	PlayerService playerService;
+
+	@Mock
+	BoardService boardService;
 
 	@Mock
 	RandomProvider randomProvider;
@@ -111,10 +115,25 @@ class GameServiceTest {
 		);
 	}
 
+	@Test
+	@MockitoSettings(strictness = Strictness.LENIENT)
+	void chooseBotName() {
+		when(randomProvider.getRandom()).thenReturn(random);
+		when(random.nextInt(anyInt())).thenReturn(0);
+		List<Player> players = createPlayerList();
+		String botName = gameService.chooseBotName(BOT_NAMES, players);
+
+		assertAll(
+				() -> assertNotNull(botName)
+		);
+	}
+
 	private ArrayList<Player> createPlayerList() {
 		when(player1.getBoard()).thenReturn(board1);
+		lenient().when(player1.getName()).thenReturn("player1");
 		when(board1.computeScore()).thenReturn(10);
 		when(player2.getBoard()).thenReturn(board2);
+		lenient().when(player2.getName()).thenReturn("player2");
 		when(board2.computeScore()).thenReturn(15);
 
 		return new ArrayList<>(List.of(player1, player2));
