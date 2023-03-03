@@ -26,6 +26,13 @@ class BoardTest {
 	}
 
 	@Test
+	void computeVisibleScore() {
+		Board board = createTwoCardsTestBoard(12, true, -1, false);
+
+		assertEquals(12, board.computeVisibleScore());
+	}
+
+	@Test
 	void revealCard() {
 		Board board = createTwoCardsTestBoard(12, false, 12, false);
 

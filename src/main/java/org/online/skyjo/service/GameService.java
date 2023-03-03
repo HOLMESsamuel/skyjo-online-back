@@ -1,14 +1,13 @@
 package org.online.skyjo.service;
 
 import org.online.skyjo.object.*;
+import org.online.skyjo.websocket.GameWebsocket;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static org.online.skyjo.Constants.*;
 
@@ -26,6 +25,9 @@ public class GameService {
 
 	@Inject
 	BoardService boardService;
+
+	@Inject
+	GameWebsocket gameWebsocket;
 
 	public Game initiateGame(String playerName) {
 		Game game = new Game();
@@ -83,10 +85,10 @@ public class GameService {
 	 */
 	protected Player findFirstPlayer(ArrayList<Player> players) {
 		Player firstPlayer = players.get(0);
-		int max = firstPlayer.getBoard().computeScore();
+		int max = firstPlayer.getBoard().computeVisibleScore();
 
 		for (Player player : players) {
-			int boardScore = player.getBoard().computeScore();
+			int boardScore = player.getBoard().computeVisibleScore();
 			if(boardScore > max) {
 				max = boardScore;
 				firstPlayer = player;
@@ -115,7 +117,8 @@ public class GameService {
 	}
 
 	public Player findCurrentPlayer(List<Player> players) {
-		return players.stream().filter(Player::isPlayerTurn).findFirst().get();
+		Optional<Player> optionalCurrentPlayer = players.stream().filter(Player::isPlayerTurn).findFirst();
+		return optionalCurrentPlayer.orElse(null);
 	}
 
 	/**
@@ -162,7 +165,7 @@ public class GameService {
 	 * @param choice the choice made by the player
 	 */
 	public void playerPlayCard(Player player, Game game, Choice choice) {
-		playerService.playCard(player, choice.getChoiceString(), game.getDeck(), choice.getRow(), choice.getLine());
+		playerService.playCard(player, choice.getChoiceString(), game.getDeck(), choice.getRow(), choice.getColumn());
 		boardService.eliminateColumn(player.getBoard(), game.getDeck());
 		if(player.getBoard().isVisible()) {
 			playerService.stateFinished(player);
@@ -173,5 +176,32 @@ public class GameService {
 			game.setState(FINISH);
 			game.getPlayers().forEach(p -> p.setScore(p.getBoard().computeScore() + p.getScore()));
 		}
+	}
+
+	public void addBot(Game game) {
+		String botName = chooseBotName(BOT_NAMES, game.getPlayers());
+		game.addPlayer(playerService.initiateBot(botName, game.getDeck()));
+		if(game.getPlayers().size() > 1 && game.getPlayers().stream().allMatch(p -> READY.equals(p.getState()))) {
+			game.setState(GAME_READY);
+		}
+	}
+
+	public void botPlay(Game game, Player bot) throws InterruptedException {
+		botChooseCard(game, bot);
+		botPlayCard(game, bot);
+		TimeUnit.SECONDS.sleep(2);
+		gameWebsocket.broadcastGame(game);
+	}
+
+	protected void botChooseCard(Game game, Player bot) {
+		//always pick from deck for now
+		playerService.getCard(bot, PICK_FROM_DECK, game.getDeck());
+	}
+
+	protected void botPlayCard(Game game, Player bot) {
+		int row = randomProvider.getRandom().nextInt(3);
+		int column = randomProvider.getRandom().nextInt(4);
+		Choice choice = new Choice(REPLACE_CARD, column, row);
+		playerPlayCard(bot, game, choice);
 	}
 }

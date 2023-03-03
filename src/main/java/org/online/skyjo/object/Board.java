@@ -38,8 +38,24 @@ public class Board {
 		return boardScore;
 	}
 
-	public void revealCard(int row, int line) {
-		grid[row][line].setVisible(true);
+	/**
+	 * Computes the board's score by adding each visible card number.
+	 * @return the board score
+	 */
+	public int computeVisibleScore() {
+		int boardScore = 0;
+		for(Card[] cardLine : this.grid) {
+			for (Card card : cardLine) {
+				if(card.isVisible()) {
+					boardScore += card.getNumber();
+				}
+			}
+		}
+		return boardScore;
+	}
+
+	public void revealCard(int row, int column) {
+		grid[row][column].setVisible(true);
 	}
 
 	public void revealAllCards() {
@@ -50,8 +66,8 @@ public class Board {
 		}
 	}
 
-	public void replaceCard(int row, int line, Card card) {
+	public void replaceCard(int row, int column, Card card) {
 		card.setVisible(true);
-		grid[row][line] = card;
+		grid[row][column] = card;
 	}
 }

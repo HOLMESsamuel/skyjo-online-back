@@ -55,12 +55,12 @@ public class PlayerService {
      * @param player player that does the replacement
      * @param deck deck where to place the removed card
      * @param row row of the card to replace
-     * @param line line of the card to replace
+     * @param column line of the card to replace
      */
-    public void replaceCard(Player player, Deck deck, int row, int line) {
+    public void replaceCard(Player player, Deck deck, int row, int column) {
         Board board = player.getBoard();
-        deck.getRemovedCards().add(board.getGrid()[row][line]);
-        board.replaceCard(row, line, player.getCardInHand());
+        deck.getRemovedCards().add(board.getGrid()[row][column]);
+        board.replaceCard(row, column, player.getCardInHand());
         player.setCardInHand(null);
     }
 
@@ -93,14 +93,14 @@ public class PlayerService {
      * @param choice choice whether to dicard the card or place it
      * @param deck deck to discard the card if chosen
      * @param row row of the place to put the card on if chosen
-     * @param line line of the place to put the card on if chosen
+     * @param column column of the place to put the card on if chosen
      */
-    public void playCard(Player player, String choice, Deck deck, int row, int line) {
+    public void playCard(Player player, String choice, Deck deck, int row, int column) {
         if(Objects.equals(choice, DROP_AND_REVEAL)) {
             dropCard(player, deck);
-            player.getBoard().revealCard(row, line);
+            player.getBoard().revealCard(row, column);
         } else if (Objects.equals(choice, REPLACE_CARD)) {
-            replaceCard(player, deck, row, line);
+            replaceCard(player, deck, row, column);
         }
     }
 

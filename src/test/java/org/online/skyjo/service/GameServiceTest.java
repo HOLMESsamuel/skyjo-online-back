@@ -77,6 +77,8 @@ class GameServiceTest {
 	@Test
 	void findFirstPLayer() {
 		ArrayList<Player> playerList = createPlayerList();
+		when(board2.computeVisibleScore()).thenReturn(12);
+		when(board1.computeVisibleScore()).thenReturn(5);
 
 		Player firstPlayer = gameService.findFirstPlayer(playerList);
 
@@ -129,12 +131,13 @@ class GameServiceTest {
 	}
 
 	private ArrayList<Player> createPlayerList() {
+		//setup player 1
 		when(player1.getBoard()).thenReturn(board1);
 		lenient().when(player1.getName()).thenReturn("player1");
-		when(board1.computeScore()).thenReturn(10);
+
+		//setup player 2
 		when(player2.getBoard()).thenReturn(board2);
 		lenient().when(player2.getName()).thenReturn("player2");
-		when(board2.computeScore()).thenReturn(15);
 
 		return new ArrayList<>(List.of(player1, player2));
 	}

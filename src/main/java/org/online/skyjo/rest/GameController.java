@@ -138,8 +138,7 @@ public class GameController {
             if (game.getPlayers().size() > 7) {
                 return TOO_MANY_PLAYERS;
             }
-            String botName = gameService.chooseBotName(BOT_NAMES, game.getPlayers());
-            game.addPlayer(playerService.initiateBot(botName, game.getDeck()));
+            gameService.addBot(game);
             gameWebsocket.broadcastGame(game);
             return Response.ok(game).build();
         }
