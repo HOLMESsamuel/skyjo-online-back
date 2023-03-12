@@ -12,8 +12,8 @@ import org.online.skyjo.object.Deck;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.online.skyjo.Constants.LINE_NUMBER;
 import static org.online.skyjo.Constants.ROW_NUMBER;
+import static org.online.skyjo.Constants.COLUMN_NUMBER;
 
 @ExtendWith(MockitoExtension.class)
 class BoardServiceTest {
@@ -105,9 +105,26 @@ class BoardServiceTest {
 		assertAll(
 				() -> assertEquals(0, board.getScore()),
 				() -> assertNotNull(board.getGrid()),
-				() -> assertEquals(LINE_NUMBER, board.getGrid().length),
-				() -> assertEquals(ROW_NUMBER, board.getGrid()[0].length),
+				() -> assertEquals(ROW_NUMBER, board.getGrid().length),
+				() -> assertEquals(COLUMN_NUMBER, board.getGrid()[0].length),
 				() -> assertEquals(card, board.getGrid()[0][0])
 		);
+	}
+
+	@Test
+	void numberOfVisibleCards() {
+		Board board = new Board();
+		Card[][] grid = new Card[ROW_NUMBER][COLUMN_NUMBER];
+		Card visibleCard = new Card(1);
+		visibleCard.setVisible(true);
+		Card invisibleCard = new Card(1);
+		invisibleCard.setVisible(false);
+		grid[0][0] = visibleCard;
+		grid[0][1] = visibleCard;
+		grid[1][0] = invisibleCard;
+		grid[1][1] = invisibleCard;
+		board.setGrid(grid);
+
+		assertEquals(2, boardService.numberOfVisibleCards(board));
 	}
 }

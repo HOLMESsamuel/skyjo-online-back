@@ -1,17 +1,13 @@
 package org.online.skyjo.service;
 
-import org.online.skyjo.object.Deck;
-import org.online.skyjo.object.Game;
-import org.online.skyjo.object.Player;
-import org.online.skyjo.object.RandomProvider;
+import org.online.skyjo.object.*;
+import org.online.skyjo.websocket.GameWebsocket;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static org.online.skyjo.Constants.*;
 
@@ -26,6 +22,15 @@ public class GameService {
 
 	@Inject
 	RandomProvider randomProvider;
+
+	@Inject
+	BoardService boardService;
+
+	@Inject
+	GameWebsocket gameWebsocket;
+
+	@Inject
+	AIService aiService;
 
 	public Game initiateGame(String playerName) {
 		Game game = new Game();
@@ -83,10 +88,10 @@ public class GameService {
 	 */
 	protected Player findFirstPlayer(ArrayList<Player> players) {
 		Player firstPlayer = players.get(0);
-		int max = firstPlayer.getBoard().computeScore();
+		int max = firstPlayer.getBoard().computeVisibleScore();
 
 		for (Player player : players) {
-			int boardScore = player.getBoard().computeScore();
+			int boardScore = player.getBoard().computeVisibleScore();
 			if(boardScore > max) {
 				max = boardScore;
 				firstPlayer = player;
@@ -104,15 +109,102 @@ public class GameService {
 	 */
 	public void nextPlayerTurn(List<Player> players, Player currentPlayer) {
 		int currentPlayerIndex = players.indexOf(currentPlayer);
+		Player nextPlayer;
 		if(currentPlayerIndex == players.size() - 1) {
-			players.get(0).setPlayerTurn(true);
+			nextPlayer = players.get(0);
 		} else {
-			players.get(currentPlayerIndex + 1).setPlayerTurn(true);
+			nextPlayer = players.get(currentPlayerIndex + 1);
 		}
+		nextPlayer.setPlayerTurn(true);
 		currentPlayer.setPlayerTurn(false);
 	}
 
 	public Player findCurrentPlayer(List<Player> players) {
-		return players.stream().filter(Player::isPlayerTurn).findFirst().get();
+		Optional<Player> optionalCurrentPlayer = players.stream().filter(Player::isPlayerTurn).findFirst();
+		return optionalCurrentPlayer.orElse(null);
 	}
+
+	/**
+	 * Choose a name from a bot in the list of names.
+	 * Can not choose a name that is already taken.
+	 */
+	public String chooseBotName(List<String> botNames, List<Player> players) {
+		String botName = botNames.get(randomProvider.getRandom().nextInt(botNames.size()));
+		if(players.stream().anyMatch(p -> p.getName().equals(botName))) {
+			return chooseBotName(botNames, players);
+		}
+		return botName;
+	}
+
+	/**
+	 * Sets the player state to ready and checks if all players are ready to start the game.
+	 * @param player the player that is ready
+	 * @param game the game
+	 * @param firstCardsCoordinates the coordinates of the first cards to reveal
+	 */
+	public void playerReady(Player player, Game game, Coordinates firstCardsCoordinates) {
+		player.getBoard().revealCard(firstCardsCoordinates.getRowCard1(), firstCardsCoordinates.getLineCard1());
+		player.getBoard().revealCard(firstCardsCoordinates.getRowCard2(), firstCardsCoordinates.getLineCard2());
+		player.setState(READY);
+		if(game.getPlayers().size() > 1 && game.getPlayers().stream().allMatch(p -> READY.equals(p.getState()))) {
+			game.setState(GAME_READY);
+		}
+	}
+
+	/**
+	 * Resets the game for a new one.
+	 * @param game the game to reset
+	 */
+	public void resetGame(Game game) {
+		game.setDeck(deckService.initiateDeck());
+		game.getPlayers().forEach(p -> playerService.resetPlayerForNextGame(p, game));
+		game.setState(PREPARING);
+	}
+
+	/**
+	 * Manages the player turn and the game state.
+	 * @param player the player that has just played a card
+	 * @param game the game
+	 * @param choice the choice made by the player
+	 */
+	public void playerPlayCard(Player player, Game game, Choice choice) {
+		playerService.playCard(player, choice.getChoiceString(), game.getDeck(), choice.getRow(), choice.getColumn());
+		manageEndOfTurn(game, player);
+	}
+
+	public void addBot(Game game) {
+		String botName = chooseBotName(BOT_NAMES, game.getPlayers());
+		game.addPlayer(playerService.initiateBot(botName, game.getDeck()));
+		if(game.getPlayers().size() > 1 && game.getPlayers().stream().allMatch(p -> READY.equals(p.getState()))) {
+			game.setState(GAME_READY);
+		}
+	}
+
+	public void botPlay(Game game, Player bot) throws InterruptedException {
+		Choice choice = botChooseCard(game, bot);
+		TimeUnit.SECONDS.sleep(3);
+		aiService.placeOrDropCard(game, bot, choice);
+		manageEndOfTurn(game, bot);
+		gameWebsocket.broadcastGame(game);
+	}
+
+	protected Choice botChooseCard(Game game, Player bot) {
+		Choice choice = aiService.chooseCard(game, bot);
+		playerService.getCard(bot, choice.getChoiceString(), game.getDeck());
+		return choice;
+	}
+
+	protected void manageEndOfTurn(Game game, Player player) {
+		boardService.eliminateColumn(player.getBoard(), game.getDeck());
+		if(player.getBoard().isVisible()) {
+			playerService.stateFinished(player);
+		}
+		nextPlayerTurn(game.getPlayers(), player);
+		Player currentPlayer = findCurrentPlayer(game.getPlayers());
+		if(FINISH.equals(currentPlayer.getState())) {
+			game.setState(FINISH);
+			game.getPlayers().forEach(p -> p.setScore(p.getBoard().computeScore() + p.getScore()));
+		}
+	}
+
 }

@@ -29,6 +29,18 @@ public class PlayerService {
         return player;
     }
 
+    public Player initiateBot(String botName, Deck deck) {
+        Player bot = new Player(botName);
+        bot.setScore(0);
+        bot.setBoard(boardService.initiateBoard(deck));
+        //reveal two random cards of the bot
+        boardService.revealRandomCards(bot.getBoard(), 2);
+        bot.setState(READY);
+        bot.setBot(true);
+
+        return bot;
+    }
+
     public void pickCard(Player player, Deck deck) {
         player.setCardInHand(deckService.pickRandomCard(deck));
     }
@@ -43,12 +55,12 @@ public class PlayerService {
      * @param player player that does the replacement
      * @param deck deck where to place the removed card
      * @param row row of the card to replace
-     * @param line line of the card to replace
+     * @param column line of the card to replace
      */
-    public void replaceCard(Player player, Deck deck, int row, int line) {
+    public void replaceCard(Player player, Deck deck, int row, int column) {
         Board board = player.getBoard();
-        deck.getRemovedCards().add(board.getGrid()[row][line]);
-        board.replaceCard(row, line, player.getCardInHand());
+        deck.getRemovedCards().add(board.getGrid()[row][column]);
+        board.replaceCard(row, column, player.getCardInHand());
         player.setCardInHand(null);
     }
 
@@ -81,14 +93,14 @@ public class PlayerService {
      * @param choice choice whether to dicard the card or place it
      * @param deck deck to discard the card if chosen
      * @param row row of the place to put the card on if chosen
-     * @param line line of the place to put the card on if chosen
+     * @param column column of the place to put the card on if chosen
      */
-    public void playCard(Player player, String choice, Deck deck, int row, int line) {
+    public void playCard(Player player, String choice, Deck deck, int row, int column) {
         if(Objects.equals(choice, DROP_AND_REVEAL)) {
             dropCard(player, deck);
-            player.getBoard().revealCard(row, line);
+            player.getBoard().revealCard(row, column);
         } else if (Objects.equals(choice, REPLACE_CARD)) {
-            replaceCard(player, deck, row, line);
+            replaceCard(player, deck, row, column);
         }
     }
 
@@ -108,9 +120,25 @@ public class PlayerService {
      * @param game game to take the cards from
      */
     public void resetPlayerForNextGame(Player player, Game game) {
+        if(player.isBot()) {
+            resetBotPlayer(game, player);
+        } else {
+            resetPlayer(game, player);
+        }
+
+    }
+
+    protected void resetPlayer(Game game, Player player) {
         player.setBoard(boardService.initiateBoard(game.getDeck()));
         player.setState(null);
         player.setCardInHand(null);
         player.setPlayerTurn(false);
+    }
+    protected void resetBotPlayer(Game game, Player bot){
+        bot.setBoard(boardService.initiateBoard(game.getDeck()));
+        boardService.revealRandomCards(bot.getBoard(), 2);
+        bot.setState(READY);
+        bot.setPlayerTurn(false);
+        bot.setCardInHand(null);
     }
 }

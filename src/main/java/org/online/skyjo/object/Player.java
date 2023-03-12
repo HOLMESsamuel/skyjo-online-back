@@ -14,6 +14,7 @@ public class Player implements Comparable<Player>{
 	private Card cardInHand;
 	private String state;
 	private boolean playerTurn;
+	private boolean bot;
 
 	public Player(String name) {
 		this.name = name;

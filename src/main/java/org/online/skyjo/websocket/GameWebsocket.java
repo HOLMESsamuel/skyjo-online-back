@@ -1,9 +1,12 @@
 package org.online.skyjo.websocket;
 
 import lombok.Getter;
+import org.online.skyjo.aspect.bot.GameUploaded;
 import org.online.skyjo.object.Game;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.event.Event;
+import javax.inject.Inject;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
@@ -21,6 +24,9 @@ import java.util.concurrent.ConcurrentHashMap;
 @Getter
 @ApplicationScoped
 public class GameWebsocket {
+
+	@Inject
+	Event<GameUploaded> event;
 
 	Map<String, Session> sessions = new ConcurrentHashMap<>();
 
@@ -60,8 +66,8 @@ public class GameWebsocket {
 	}
 
 	/**
-	 * Send a json encoded game to all
-	 * @param game
+	 * Send a json encoded game to all subscribed players and triggers a GameUploaded event.
+	 * @param game the game to send.
 	 */
 	public void broadcastGame(Game game) {
 		game.setLastModificationDate(LocalDateTime.now());
@@ -72,6 +78,7 @@ public class GameWebsocket {
 				}
 			});
 		});
+		event.fire(new GameUploaded(game));
 	}
 
 }
