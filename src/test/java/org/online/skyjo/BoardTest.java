@@ -19,6 +19,26 @@ class BoardTest {
 	}
 
 	@Test
+	void deepCopy() {
+		Board board = new Board();
+		board.setScore(12);
+		Card[][] grid = new Card[3][4];
+		grid[0][0] = new Card(4);
+		board.setGrid(grid);
+
+		Board copyBoard = board.deepCopy();
+		copyBoard.setScore(1);
+		copyBoard.getGrid()[0][0] = new Card(5);
+
+		assertAll(
+				() -> assertEquals(4, board.getGrid()[0][0].getNumber()),
+				() -> assertEquals(12, board.getScore()),
+				() -> assertEquals(1, copyBoard.getScore()),
+				() -> assertEquals(5, copyBoard.getGrid()[0][0].getNumber())
+		);
+	}
+
+	@Test
 	void computeScore() {
 		Board board = createTwoCardsTestBoard(12, true, -1, false);
 

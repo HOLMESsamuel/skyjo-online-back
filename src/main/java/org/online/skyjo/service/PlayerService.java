@@ -120,9 +120,25 @@ public class PlayerService {
      * @param game game to take the cards from
      */
     public void resetPlayerForNextGame(Player player, Game game) {
+        if(player.isBot()) {
+            resetBotPlayer(game, player);
+        } else {
+            resetPlayer(game, player);
+        }
+
+    }
+
+    protected void resetPlayer(Game game, Player player) {
         player.setBoard(boardService.initiateBoard(game.getDeck()));
         player.setState(null);
         player.setCardInHand(null);
         player.setPlayerTurn(false);
+    }
+    protected void resetBotPlayer(Game game, Player bot){
+        bot.setBoard(boardService.initiateBoard(game.getDeck()));
+        boardService.revealRandomCards(bot.getBoard(), 2);
+        bot.setState(READY);
+        bot.setPlayerTurn(false);
+        bot.setCardInHand(null);
     }
 }

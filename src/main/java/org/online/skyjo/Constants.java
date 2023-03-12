@@ -21,8 +21,8 @@ public class Constants {
 	//player states
 	public static final String READY = "ready";
 
-	public static final int ROW_NUMBER = 4;
-	public static final int LINE_NUMBER = 3;
+	public static final int COLUMN_NUMBER = 4;
+	public static final int ROW_NUMBER = 3;
 
 	public static final Response GAME_NOT_EXISTS = Response.status(404, "This game does not exists").build();
 	public static final Response GAME_ALREADY_STARTED = Response.status(403, "This game already started").build();

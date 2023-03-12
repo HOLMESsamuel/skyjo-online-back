@@ -19,4 +19,8 @@ public class Card {
 	public Card(int number) {
 		this.number = number;
 	}
+
+	public  Card(Card source) {
+		this(source.getNumber(), source.isVisible(), source.isEliminated());
+	}
 }

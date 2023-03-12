@@ -1,13 +1,35 @@
 package org.online.skyjo.object;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class Board {
+@NoArgsConstructor
+@AllArgsConstructor
+public class Board{
 	private int score;
 	private Card[][] grid;
+
+	public Board deepCopy() {
+		Card[][] copyGrid = new Card[3][4];
+		for(int i = 0; i<3; i++) {
+			for(int j = 0; j<4; j++) {
+				Card originalCard = this.grid[i][j];
+				if(originalCard != null) {
+					Card copyCard = new Card(originalCard);
+					copyGrid[i][j] = copyCard;
+				}
+			}
+		}
+		Board copyBoard = new Board();
+		copyBoard.setScore(this.score);
+		copyBoard.setGrid(copyGrid);
+
+		return copyBoard;
+	}
 
 	/**
 	 * Return true if all boards cards are visible and false otherwise.

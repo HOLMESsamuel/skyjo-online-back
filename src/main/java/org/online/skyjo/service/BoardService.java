@@ -7,8 +7,8 @@ import org.online.skyjo.object.Deck;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import static org.online.skyjo.Constants.LINE_NUMBER;
 import static org.online.skyjo.Constants.ROW_NUMBER;
+import static org.online.skyjo.Constants.COLUMN_NUMBER;
 
 @ApplicationScoped
 public class BoardService {
@@ -24,10 +24,10 @@ public class BoardService {
 	public Board initiateBoard(Deck deck) {
 		Board board = new Board();
 
-		Card[][] grid = new Card[LINE_NUMBER][ROW_NUMBER];
+		Card[][] grid = new Card[ROW_NUMBER][COLUMN_NUMBER];
 
-		for(int i = 0; i<LINE_NUMBER; i++) {
-			for(int j = 0; j<ROW_NUMBER; j++) {
+		for(int i = 0; i< ROW_NUMBER; i++) {
+			for(int j = 0; j< COLUMN_NUMBER; j++) {
 				grid[i][j] = deckService.pickRandomCard(deck);
 				grid[i][j].setVisible(false);
 			}
@@ -81,5 +81,18 @@ public class BoardService {
 				i--;
 			}
 		}
+	}
+
+	public int numberOfVisibleCards(Board board) {
+		Card[][] grid = board.getGrid();
+		int numberOfVisibleCards = 0;
+		for(int i = 0; i< ROW_NUMBER; i++) {
+			for(int j = 0; j< COLUMN_NUMBER; j++) {
+				if(grid[i][j] != null && grid[i][j].isVisible()){
+					numberOfVisibleCards += 1;
+				}
+			}
+		}
+		return numberOfVisibleCards;
 	}
 }

@@ -29,6 +29,9 @@ public class GameService {
 	@Inject
 	GameWebsocket gameWebsocket;
 
+	@Inject
+	AIService aiService;
+
 	public Game initiateGame(String playerName) {
 		Game game = new Game();
 		UUID uuid = UUID.randomUUID();
@@ -166,6 +169,32 @@ public class GameService {
 	 */
 	public void playerPlayCard(Player player, Game game, Choice choice) {
 		playerService.playCard(player, choice.getChoiceString(), game.getDeck(), choice.getRow(), choice.getColumn());
+		manageEndOfTurn(game, player);
+	}
+
+	public void addBot(Game game) {
+		String botName = chooseBotName(BOT_NAMES, game.getPlayers());
+		game.addPlayer(playerService.initiateBot(botName, game.getDeck()));
+		if(game.getPlayers().size() > 1 && game.getPlayers().stream().allMatch(p -> READY.equals(p.getState()))) {
+			game.setState(GAME_READY);
+		}
+	}
+
+	public void botPlay(Game game, Player bot) throws InterruptedException {
+		Choice choice = botChooseCard(game, bot);
+		TimeUnit.SECONDS.sleep(3);
+		aiService.placeOrDropCard(game, bot, choice);
+		manageEndOfTurn(game, bot);
+		gameWebsocket.broadcastGame(game);
+	}
+
+	protected Choice botChooseCard(Game game, Player bot) {
+		Choice choice = aiService.chooseCard(game, bot);
+		playerService.getCard(bot, choice.getChoiceString(), game.getDeck());
+		return choice;
+	}
+
+	protected void manageEndOfTurn(Game game, Player player) {
 		boardService.eliminateColumn(player.getBoard(), game.getDeck());
 		if(player.getBoard().isVisible()) {
 			playerService.stateFinished(player);
@@ -178,30 +207,4 @@ public class GameService {
 		}
 	}
 
-	public void addBot(Game game) {
-		String botName = chooseBotName(BOT_NAMES, game.getPlayers());
-		game.addPlayer(playerService.initiateBot(botName, game.getDeck()));
-		if(game.getPlayers().size() > 1 && game.getPlayers().stream().allMatch(p -> READY.equals(p.getState()))) {
-			game.setState(GAME_READY);
-		}
-	}
-
-	public void botPlay(Game game, Player bot) throws InterruptedException {
-		botChooseCard(game, bot);
-		botPlayCard(game, bot);
-		TimeUnit.SECONDS.sleep(2);
-		gameWebsocket.broadcastGame(game);
-	}
-
-	protected void botChooseCard(Game game, Player bot) {
-		//always pick from deck for now
-		playerService.getCard(bot, PICK_FROM_DECK, game.getDeck());
-	}
-
-	protected void botPlayCard(Game game, Player bot) {
-		int row = randomProvider.getRandom().nextInt(3);
-		int column = randomProvider.getRandom().nextInt(4);
-		Choice choice = new Choice(REPLACE_CARD, column, row);
-		playerPlayCard(bot, game, choice);
-	}
 }
