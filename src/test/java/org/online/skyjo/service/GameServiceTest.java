@@ -12,9 +12,7 @@ import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
 import org.online.skyjo.object.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -130,6 +128,137 @@ class GameServiceTest {
 		);
 	}
 
+	@Test
+	void testManageScoreBoard_withNewScoreBoard() {
+		//prepare game
+		Game game = new Game();
+		Player player1 = new Player();
+		player1.setName("player1");
+		player1.setScore(10);
+		Player player2 = new Player();
+		player2.setName("player2");
+		player2.setScore(15);
+		ArrayList<Player> players = new ArrayList<>();
+		players.add(player1);
+		players.add(player2);
+		game.setPlayers(players);
+
+		gameService.manageScoreBoard(game);
+
+		assertAll(
+				() -> assertEquals(1, game.getScoreBoard().get("player1").getScores().size()),
+				() -> assertEquals(10, game.getScoreBoard().get("player1").getScores().get(0)),
+				() -> assertEquals(1, game.getScoreBoard().get("player2").getScores().size()),
+				() -> assertEquals(15, game.getScoreBoard().get("player2").getScores().get(0))
+		);
+	}
+
+	@Test
+	void testManageScoreBoard_withExistingScoreBoard() {
+		//prepare game
+		Game game = new Game();
+		Player player1 = new Player();
+		player1.setName("player1");
+		player1.setScore(20);
+		Player player2 = new Player();
+		player2.setName("player2");
+		player2.setScore(10);
+		ArrayList<Player> players = new ArrayList<>();
+		players.add(player1);
+		players.add(player2);
+		game.setPlayers(players);
+
+		Map<String, PlayerScore> initialScoreBoard = new HashMap<>();
+		initialScoreBoard.put("player1", new PlayerScore(List.of(15)));
+		initialScoreBoard.put("player2", new PlayerScore(List.of(20)));
+		game.setScoreBoard(initialScoreBoard);
+
+		gameService.manageScoreBoard(game);
+
+		Map<String, PlayerScore> expectedScoreBoard = new HashMap<>();
+		expectedScoreBoard.put("player1", new PlayerScore(List.of(15, 20)));
+		expectedScoreBoard.put("player2", new PlayerScore(List.of(20, 10)));
+
+		assertAll(
+				() -> assertEquals(2, game.getScoreBoard().get("player1").getScores().size()),
+				() -> assertEquals(15, game.getScoreBoard().get("player1").getScores().get(0)),
+				() -> assertEquals(20, game.getScoreBoard().get("player1").getScores().get(1)),
+				() -> assertEquals(2, game.getScoreBoard().get("player2").getScores().size()),
+				() -> assertEquals(20, game.getScoreBoard().get("player2").getScores().get(0)),
+				() -> assertEquals(10, game.getScoreBoard().get("player2").getScores().get(1))
+		);
+	}
+
+	@Test
+	void testManageScoreBoard_withNewPlayer() {
+		//prepare game
+		Game game = new Game();
+		Player player1 = new Player();
+		player1.setName("player1");
+		player1.setScore(20);
+		Player player2 = new Player();
+		player2.setName("player2");
+		player2.setScore(15);
+		Player player3 = new Player();
+		player3.setName("player3");
+		player3.setScore(10);
+		ArrayList<Player> players = new ArrayList<>();
+		players.add(player1);
+		players.add(player2);
+		players.add(player3);
+		game.setNumberOfGames(1);
+		game.setPlayers(players);
+
+		Map<String, PlayerScore> initialScoreBoard = new HashMap<>();
+		initialScoreBoard.put("player1", new PlayerScore(List.of(15)));
+		initialScoreBoard.put("player2", new PlayerScore(List.of(20)));
+		game.setScoreBoard(initialScoreBoard);
+
+		gameService.manageScoreBoard(game);
+
+		assertAll(
+				() -> assertEquals(2, game.getScoreBoard().get("player1").getScores().size()),
+				() -> assertEquals(15, game.getScoreBoard().get("player1").getScores().get(0)),
+				() -> assertEquals(20, game.getScoreBoard().get("player1").getScores().get(1)),
+				() -> assertEquals(2, game.getScoreBoard().get("player2").getScores().size()),
+				() -> assertEquals(20, game.getScoreBoard().get("player2").getScores().get(0)),
+				() -> assertEquals(15, game.getScoreBoard().get("player2").getScores().get(1)),
+				() -> assertEquals(2, game.getScoreBoard().get("player3").getScores().size()),
+				() -> assertEquals(0, game.getScoreBoard().get("player3").getScores().get(0)),
+				() -> assertEquals(10, game.getScoreBoard().get("player3").getScores().get(1))
+		);
+	}
+
+	@Test
+	void testSortScoreBoard() {
+		Map<String, PlayerScore> scoreBoard = new LinkedHashMap<>();
+		scoreBoard.put("player1", new PlayerScore(List.of(5, 10, 15)));
+		scoreBoard.put("player2", new PlayerScore(List.of(20, 5, 5)));
+		scoreBoard.put("player3", new PlayerScore(List.of(10, 5, 10)));
+
+		gameService.sortScoreBoard(scoreBoard);
+
+		Map<String, PlayerScore> expectedScoreBoard = new LinkedHashMap<>();
+		expectedScoreBoard.put("player3", new PlayerScore(List.of(10, 5, 10)));
+		expectedScoreBoard.put("player1", new PlayerScore(List.of(5, 10, 15)));
+		expectedScoreBoard.put("player2", new PlayerScore(List.of(20, 5, 5)));
+
+		// Compare keys and values separately
+		assertIterableEquals(expectedScoreBoard.keySet(), scoreBoard.keySet());
+
+		Iterator<PlayerScore> expectedScoreIterator = expectedScoreBoard.values().iterator();
+		Iterator<PlayerScore> actualScoreIterator = scoreBoard.values().iterator();
+
+		while (expectedScoreIterator.hasNext() && actualScoreIterator.hasNext()) {
+			PlayerScore expectedPlayerScore = expectedScoreIterator.next();
+			PlayerScore actualPlayerScore = actualScoreIterator.next();
+
+			assertEquals(expectedPlayerScore.getTotalScore(), actualPlayerScore.getTotalScore());
+			assertIterableEquals(expectedPlayerScore.getScores(), actualPlayerScore.getScores());
+		}
+	}
+
+
 	private ArrayList<Player> createPlayerList() {
 		//setup player 1
 		when(player1.getBoard()).thenReturn(board1);
@@ -141,6 +270,5 @@ class GameServiceTest {
 
 		return new ArrayList<>(List.of(player1, player2));
 	}
-
 
 }

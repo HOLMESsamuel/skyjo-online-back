@@ -5,8 +5,8 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Getter
@@ -17,6 +17,8 @@ public class Game {
 	private String state;
 	private Deck deck;
 	private LocalDateTime lastModificationDate;
+	private Map<String, PlayerScore> scoreBoard;
+	private int numberOfGames;
 
 	public void addPlayer(Player player) {
 		players.add(player);

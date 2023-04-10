@@ -8,6 +8,7 @@ import javax.inject.Inject;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static org.online.skyjo.Constants.*;
 
@@ -203,7 +204,57 @@ public class GameService {
 		Player currentPlayer = findCurrentPlayer(game.getPlayers());
 		if(FINISH.equals(currentPlayer.getState())) {
 			game.setState(FINISH);
-			game.getPlayers().forEach(p -> p.setScore(p.getBoard().computeScore() + p.getScore()));
+			manageEndGame(game);
+		}
+	}
+
+	protected void manageEndGame(Game game) {
+		game.getPlayers().forEach(p -> p.setScore(p.getBoard().computeScore()));
+		manageScoreBoard(game);
+		game.setNumberOfGames(game.getNumberOfGames() + 1);
+	}
+
+	void manageScoreBoard(Game game) {
+		Map<String, PlayerScore> scoreBoard = game.getScoreBoard();
+		if(scoreBoard == null) {
+			scoreBoard = new HashMap<>();
+			game.setScoreBoard(scoreBoard);
+		}
+		int numGamesPlayed = game.getNumberOfGames();
+		List<Player> players = game.getPlayers();
+
+		for (Player player : players) {
+			String playerName = player.getName();
+			int playerScore = player.getScore();
+			List<Integer> playerScores;
+
+			if (scoreBoard.containsKey(playerName)) {
+				playerScores = new ArrayList<>(scoreBoard.get(playerName).getScores());
+			} else {
+				playerScores = new ArrayList<>();
+				for (int i = 0; i < numGamesPlayed; i++) {
+					playerScores.add(0); // Add score 0 for missed games
+				}
+				scoreBoard.put(playerName, new PlayerScore(playerScores));
+			}
+
+			playerScores.add(playerScore); // Add the last score at the end of the list
+			scoreBoard.get(playerName).setTotalScore(scoreBoard.get(playerName).getTotalScore() + playerScore);
+			scoreBoard.get(playerName).setScores(playerScores);
+		}
+
+		sortScoreBoard(scoreBoard);
+	}
+
+	void sortScoreBoard(Map<String, PlayerScore> scoreBoard) {
+		List<Map.Entry<String, PlayerScore>> sortedEntries = scoreBoard.entrySet().stream()
+				.sorted(Comparator.comparingInt(entry -> entry.getValue().getTotalScore()))
+				.collect(Collectors.toList());
+
+		scoreBoard.clear();
+
+		for (Map.Entry<String, PlayerScore> entry : sortedEntries) {
+			scoreBoard.put(entry.getKey(), entry.getValue());
 		}
 	}
 
